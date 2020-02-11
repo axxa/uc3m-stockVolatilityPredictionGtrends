@@ -1,0 +1,11 @@
+
+-To auto deploy on file save
+  npm install --save-dev nodemon
+-Express package to parse incomming request data to manage it in the backend
+  npm install --save body-parser
+- rxjs //TODO
+-mongodb object modeling for node.js
+  npm install --save mongoose
+
+
+  npm uninstall --save mongoose
