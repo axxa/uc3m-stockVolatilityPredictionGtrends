@@ -5,4 +5,4 @@ const GTrendData = function (date, value) {
   this.value = value;
 };
 
-//module.exports = gTrendData.model('Post', postSchema);
+module.exports = GTrendData

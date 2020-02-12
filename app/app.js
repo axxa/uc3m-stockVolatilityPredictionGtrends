@@ -39,9 +39,10 @@ app.get('/volatilitypred/extractdata', (req, res, next) => {
   }
   googleTrends.interestOverTime(optionsObject)
   .then(function(results){
-    //results = JSON.parse(results).default.timelineData.filter(r => r.hasData == "true" );
+    results = JSON.parse(results).default.timelineData.filter(r => r.hasData == "true" );
     res.status(201).json({
-      results: results
+      stockdata : null,
+      gtrendsdata : results
     });
   })
   .catch(function(err){
