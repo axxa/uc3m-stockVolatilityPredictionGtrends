@@ -30,7 +30,7 @@ app.get('/volatilitypred/extractdata', (req, res, next) => {
   startDate.setDate(startDate.getDay() - 2);
 
   const optionsObject = {
-    keyword: 'bbva',//req.params.trendWord,//'ibex35',
+    keyword: 'another',//req.params.trendWord,//'ibex35',
     property: 'web search',
     //resolution: 'COUNTRY',
     startTime: startDate,
