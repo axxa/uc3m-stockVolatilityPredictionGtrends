@@ -11,22 +11,19 @@ import {
   MatExpansionModule,
   MatTabsModule
 } from '@angular/material';
+import { ChartsModule } from 'ng2-charts';
 
 import { AppComponent } from './app.component';
-//import { PostCreateComponent } from './posts/posts-create/post-create.component';
 import { HeaderComponent } from './header/header.component';
-//import { PostListComponent } from './posts/post-list/post-list.component';
 import { GtrendListComponent } from './posts/gtrend-list/gtrend-list.component';
-//import { TabNavComponent } from './tabs/tab.nav.component';
+import { ChartComponent } from './chart.component/chart.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    //PostCreateComponent,
     HeaderComponent,
-    //PostListComponent,
-    //TabNavComponent,
-    GtrendListComponent
+    GtrendListComponent,
+    ChartComponent
   ],
   imports: [
     BrowserModule,
@@ -38,7 +35,8 @@ import { GtrendListComponent } from './posts/gtrend-list/gtrend-list.component';
     MatToolbarModule,
     MatExpansionModule,
     MatTabsModule,
-    HttpClientModule
+    HttpClientModule,
+    ChartsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
