@@ -1,5 +1,5 @@
-<div>
-  <div style="display: block">
+<div class="row">
+  <div class="block" style="display: block">
     <canvas baseChart
       [datasets]="chartData"
       [labels]="chartLabels"
@@ -8,5 +8,13 @@
       [chartType]="chartType">
     </canvas>
   </div>
-  <button mat-button color="warn" (click)="graphChart()">SHOW</button>
+  <div class="block" style="display: block">
+    <canvas baseChart
+      [datasets]="chartData2"
+      [labels]="chartLabels2"
+      [options]="chartOptions"
+      [legend]="chartLegend2"
+      [chartType]="chartType2">
+    </canvas>
+  </div>
 </div>

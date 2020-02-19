@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 
 import { GtrendData } from '../gtrendData.model';
-import { GtrendService } from '../gtrend.service';
+import { ExtractDataService } from '../extractdata.service';
 
 @Component({
   selector: 'app-gtrend-list',
@@ -10,26 +10,21 @@ import { GtrendService } from '../gtrend.service';
   styleUrls: ['./gtrend-list.component.css']
 })
 export class GtrendListComponent implements OnInit, OnDestroy {
-  /*posts = [
-    { name: 'First Post', desc : 'This is the first post\s content' },
-    { name: 'Second Post', desc : 'This is the second post\s content' },
-    { name: 'Third Post', desc : 'This is the third post\s content' }
-  ];*/
   posts: GtrendData[] = [];
   private postsSub: Subscription;
 
-  constructor(public postsService: GtrendService) {}
+  constructor(public postsService: ExtractDataService) {}
 
   ngOnInit(): void {
-    this.postsService.getPosts();
+    /*this.postsService.getPosts();
     this.postsSub = this.postsService.getPostUpdateListener()
-      .subscribe((posts: GtrendData[]) => {
-        this.posts = posts;
-      });
+      .subscribe((posts: any) => {
+        this.posts = posts.trendPosts;
+      });*/
   }
 
   ngOnDestroy(): void {
-    this.postsSub.unsubscribe();
+    //this.postsSub.unsubscribe();
   }
 
 }

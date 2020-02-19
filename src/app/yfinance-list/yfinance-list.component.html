@@ -1,11 +1,15 @@
 <br>
 <mat-accordion multi="true" *ngIf="posts.length > 0">
   <mat-expansion-panel *ngFor="let post of posts">
-    <!--mat-expansion-panel-header>
+    <mat-expansion-panel-header>
       {{ post.date }}
     </mat-expansion-panel-header>
-    <p>{{ post.value }}</p>
-    <mat-action-row>
+    <p>symbol: {{ post.symbol }}</p>
+    <p>open: {{ post.open }}</p>
+    <p>high: {{ post.high }}</p>
+    <p>low: {{ post.low }}</p>
+    <p>close: {{ post.close }}</p>
+    <!--mat-action-row>
       <button mat-button color="primary">EDIT</button>
       <button mat-button color="warn" (click)="onDelete(post.id)">DELETE</!--button>
     </mat-action-row-->
