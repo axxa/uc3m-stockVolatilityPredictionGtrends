@@ -1,6 +1,9 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const googleTrends = require('google-trends-api');
+const yahooFinance = require('yahoo-finance');
+
+const ss = require('simple-statistics')
 
 const app = express();
 
@@ -23,10 +26,9 @@ app.use((req, res, next) => {
 });
 
 //app.get('/volatilitypred/extractdata/:trendWord', (req, res, next) => {
-app.get('/volatilitypred/extractdata', (req, res, next) => {
+app.get('/volatilitypred/extractTrends', (req, res, next) => {
 
   const startDate = new Date();
-  //startDate.setHours(startDate.getHours() - 2);
   startDate.setDate(startDate.getDay() - 2);
 
   const optionsObject = {
@@ -34,20 +36,42 @@ app.get('/volatilitypred/extractdata', (req, res, next) => {
     property: 'web search',
     //resolution: 'COUNTRY',
     startTime: startDate,
-    //endTime:
-    //granularTimeResolution: true
   }
   googleTrends.interestOverTime(optionsObject)
   .then(function(results){
-    results = JSON.parse(results).default.timelineData.filter(r => r.hasData == "true" );
+    //results = JSON.parse(results).default.timelineData.filter(r => r.hasData == "true" );
+    results = JSON.parse(results).default.timelineData;
     res.status(201).json({
-      stockdata : null,
       gtrendsdata : results
     });
   })
   .catch(function(err){
     console.error('Oh no there was an error', err);
   });
+});
+
+app.get('/volatilitypred/extractFinance', (req, res, next) => {
+
+  const startDate = new Date();
+  startDate.setDate(startDate.getDay() - 2);
+
+  const optionsObject = {
+    symbol: 'BBVA',
+    /*from: '2020-02-14',
+    to: '2020-02-18'*/
+
+    from: startDate,
+    to: new Date()
+  }
+
+  yahooFinance.historical(optionsObject)
+    .then(function(results){
+      res.status(201).json({
+        stockdata: results.reverse()
+      });
+  });
+
+
 });
 
 module.exports = app;
