@@ -5,3 +5,9 @@
   npm install --save body-parser
 - rxjs //TODO
 
+
+npm install --save yahoo-finance
+npm uninstall google-finance
+
+
+npm install simple-statistics

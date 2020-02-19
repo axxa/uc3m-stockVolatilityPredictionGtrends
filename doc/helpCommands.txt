@@ -8,18 +8,9 @@ Backend
     > npm install --save-dev nodemon
     start command:
       > npm run start:server
-  -MongoDB
-    Start mongo
-      > D:\DEV\mongo3.4.23\bin\mongod.exe --dbpath D:\DEV\mongo3.4.23\data
-    > use marketplace
 
-db.createUser(
-  {
-    user: "axxa",
-    pwd: "123456",
-    roles: [
-      { role: "readWrite", db: "mean" }
-    ]
-  }
-);
+
+Angular generate component
+  ng g c <name without component posfix>
+
 
