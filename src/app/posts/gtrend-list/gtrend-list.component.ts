@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 
-import { GtrendData } from '../gtrendData.model';
-import { ExtractDataService } from '../extractdata.service';
+import { GtrendData } from '../../model/gtrendData.model';
+import { ExtractDataService } from '../service/extractdata.service';
 
 @Component({
   selector: 'app-gtrend-list',
@@ -10,7 +10,7 @@ import { ExtractDataService } from '../extractdata.service';
   styleUrls: ['./gtrend-list.component.css']
 })
 export class GtrendListComponent implements OnInit, OnDestroy {
-  posts: GtrendData[] = [];
+  posts: GtrendData;
   private postsSub: Subscription;
 
   constructor(public postsService: ExtractDataService) {}

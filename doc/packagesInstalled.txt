@@ -11,3 +11,4 @@ npm uninstall google-finance
 
 
 npm install simple-statistics
+npm install --save hammerjs

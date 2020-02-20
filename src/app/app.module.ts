@@ -13,6 +13,10 @@ import {
   MatTabsModule
 } from '@angular/material';
 import { ChartsModule } from 'ng2-charts';
+import 'hammerjs';
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
 
 import { AppComponent } from './app.component';
 import { HeaderComponent } from './header/header.component';
@@ -20,9 +24,6 @@ import { GtrendListComponent } from './posts/gtrend-list/gtrend-list.component';
 import { ChartComponent } from './chart.component/chart.component';
 import { YfinanceListComponent } from './yfinance-list/yfinance-list.component';
 import { DataTableComponent } from './data-table/data-table.component';
-import { MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatSortModule } from '@angular/material/sort';
 
 @NgModule({
   declarations: [

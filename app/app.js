@@ -30,9 +30,9 @@ app.get('/volatilitypred/extractTrends', (req, res, next) => {
 
   const startDate = new Date();
   startDate.setDate(startDate.getDay() - 2);
-
+  const keyword = 'another';
   const optionsObject = {
-    keyword: 'another',//req.params.trendWord,//'ibex35',
+    keyword: keyword,//req.params.trendWord,//'ibex35',
     property: 'web search',
     //resolution: 'COUNTRY',
     startTime: startDate,
@@ -41,6 +41,14 @@ app.get('/volatilitypred/extractTrends', (req, res, next) => {
   .then(function(results){
     //results = JSON.parse(results).default.timelineData.filter(r => r.hasData == "true" );
     results = JSON.parse(results).default.timelineData;
+    results.forEach(function(result) {
+      result.time = result.time
+      result.formattedTime = result.formattedTime;
+      result.formattedAxisTime = result.formattedAxisTime;
+      result.value = result.value[0];
+      result.formattedValue = result.formattedValue;
+      result.symbol= keyword;
+    });
     res.status(201).json({
       gtrendsdata : results
     });
@@ -57,9 +65,6 @@ app.get('/volatilitypred/extractFinance', (req, res, next) => {
 
   const optionsObject = {
     symbol: 'BBVA',
-    /*from: '2020-02-14',
-    to: '2020-02-18'*/
-
     from: startDate,
     to: new Date()
   }

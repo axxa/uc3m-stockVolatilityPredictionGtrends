@@ -5,8 +5,8 @@ import { MatTable } from '@angular/material/table';
 import { DataTableDataSource } from './data-table-datasource';
 import { Subscription } from 'rxjs';
 
-import { GtrendData } from '../posts/gtrendData.model';
-import { ExtractDataService } from '../posts/extractdata.service';
+import { GtrendData } from '../model/gtrendData.model';
+import { ExtractDataService } from '../posts/service/extractdata.service';
 
 @Component({
   selector: 'app-data-table',
@@ -19,7 +19,7 @@ export class DataTableComponent implements AfterViewInit, OnInit {
   @ViewChild(MatTable, {static: false}) table: MatTable<GtrendData>;
   dataSource: DataTableDataSource;
 
-  posts: GtrendData[] = [];
+  posts: GtrendData = new GtrendData();
   private postsSub: Subscription;
 
   constructor(public postsService: ExtractDataService) {}
@@ -33,8 +33,8 @@ export class DataTableComponent implements AfterViewInit, OnInit {
     //this.postsService.getPosts();
     this.postsSub = this.postsService.getPostUpdateListener()
       .subscribe((posts: any) => {
-        this.posts = posts.trendPosts;
-        this.dataSource.data = this.posts;
+        this.posts.data = posts.trendPosts.data;
+        this.dataSource.data = this.posts.data;
       });
   }
 

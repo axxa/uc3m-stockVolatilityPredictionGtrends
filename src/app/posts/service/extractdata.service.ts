@@ -4,17 +4,17 @@ import { Subject, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { DatePipe } from '@angular/common';
 
-import * as ss from 'simple-statistics';
+import { GtrendData } from '../../model/gtrendData.model';
+import { YfinanceData } from '../../model/yfinanceData.model';
+import { StatisticData } from '../../model/statisticData.model';
 
-import { GtrendData } from '../posts/gtrendData.model';
-import { YfinanceData } from '../posts/yfinanceData.model';
-import { ProcessDataService } from '../posts/processdata.service';
+import { ProcessDataService } from './processdata.service';
 
 @Injectable({providedIn: 'root'})
 export class ExtractDataService {
   private postsUpdated = new Subject<any>();
-  private trendPostsUpdated: GtrendData[] = [];
-  private financePostsUpdated: YfinanceData[] = [];
+  private trendPostsUpdated: GtrendData = new GtrendData();
+  private financePostsUpdated: YfinanceData = new YfinanceData();
   private PROCESSDATASERVICE: ProcessDataService = new ProcessDataService();
 
   constructor(private http: HttpClient, private datePipe: DatePipe) {}
@@ -29,7 +29,7 @@ export class ExtractDataService {
           return {
             id: null,
             date: this.formatDate(post.formattedTime),
-            value: post.formattedValue,
+            value: post.value,
             symbol: post.symbol
           };
         });
@@ -40,7 +40,6 @@ export class ExtractDataService {
       'http://localhost:3000/volatilitypred/extractFinance'
     )
     .pipe(map((postData) => {
-      console.log(postData.stockdata);
       return postData.stockdata.map(post => {
         return {
           id: null,
@@ -55,13 +54,15 @@ export class ExtractDataService {
     }));
 
     forkJoin([trends, finance]).subscribe(results => {
-      this.trendPostsUpdated = results[0];
-      this.financePostsUpdated = results[1];
+      this.trendPostsUpdated.data = results[0];
+      this.financePostsUpdated.data = results[1];
+      this.trendPostsUpdated.statisticData = this.PROCESSDATASERVICE.generateStatisticData(this.trendPostsUpdated.data, 'value');
+      this.financePostsUpdated.statisticData = this.PROCESSDATASERVICE.generateStatisticData(this.financePostsUpdated.data, 'open');
+
       this.postsUpdated
         .next({
-          trendPosts: [...this.trendPostsUpdated],
-          financePosts : [...this.financePostsUpdated],
-          openSigma: this.PROCESSDATASERVICE.getStandardDeviation(this.financePostsUpdated, 'open')
+          trendPosts: this.trendPostsUpdated,
+          financePosts : this.financePostsUpdated,
         });
     });
   }
