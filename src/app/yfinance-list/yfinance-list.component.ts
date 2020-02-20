@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 
-import { YfinanceData } from '../model/yfinanceData.model';
+import { FinanceData } from '../model/yfinanceData.model';
 import { ExtractDataService } from '../posts/service/extractdata.service';
 
 @Component({
@@ -11,7 +11,7 @@ import { ExtractDataService } from '../posts/service/extractdata.service';
 })
 export class YfinanceListComponent implements OnInit, OnDestroy {
 
-  posts: YfinanceData = new YfinanceData();
+  posts: FinanceData = new FinanceData();
   private postsSub: Subscription;
 
   constructor(public postsService: ExtractDataService) {}

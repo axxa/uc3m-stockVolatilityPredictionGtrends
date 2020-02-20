@@ -6,10 +6,10 @@
       <td mat-cell *matCellDef="let row">{{row.date}}</td>
     </ng-container>
 
-    <!-- value Column -->
-    <ng-container matColumnDef="value">
+    <!-- trendCount Column -->
+    <ng-container matColumnDef="trendCount">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Trend</th>
-      <td mat-cell *matCellDef="let row">{{row.value}}</td>
+      <td mat-cell *matCellDef="let row">{{row.trendCount}}</td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

@@ -65,7 +65,7 @@ export class DataTableDataSource extends DataSource<any> {
       const isAsc = this.sort.direction === 'asc';
       switch (this.sort.active) {
         case 'date': return compare(a.date, b.date, isAsc);
-        case 'value': return compare(+a.value, +b.value, isAsc);
+        case 'trendCount': return compare(+a.trendCount, +b.trendCount, isAsc);
         default: return 0;
       }
     });

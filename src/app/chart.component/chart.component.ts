@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 
-import { GtrendData } from '../model/gtrendData.model';
-import { YfinanceData } from '../model/yfinanceData.model';
+import { TrendData } from '../model/gtrendData.model';
+import { FinanceData } from '../model/yfinanceData.model';
 import { StatisticData } from '../model/statisticData.model';
 
 import { ExtractDataService } from '../posts/service/extractdata.service';
@@ -15,8 +15,8 @@ import { ExtractDataService } from '../posts/service/extractdata.service';
 export class ChartComponent implements OnInit, OnDestroy {
 
   private postsSub: Subscription;
-  private gtrendData: GtrendData = new GtrendData();
-  private yfinanceData: YfinanceData = new YfinanceData();
+  private gtrendData: TrendData = new TrendData();
+  private yfinanceData: FinanceData = new FinanceData();
 
   public chartLabels = [];
   public chartType = 'line';
@@ -116,7 +116,7 @@ export class ChartComponent implements OnInit, OnDestroy {
 
   graphChart() {
     this.gtrendData.data.map(mydata => {
-      this.trendsChartData[1].data.push( mydata.value );
+      this.trendsChartData[1].data.push( mydata.trendCount );
       this.trendsChartData[0].data.push( this.gtrendData.statisticData.meanPlusSigma );
       this.trendsChartData[2].data.push( this.gtrendData.statisticData.meanMinusSigma );
       this.trendsChartData[3].data.push( this.gtrendData.statisticData.mean );

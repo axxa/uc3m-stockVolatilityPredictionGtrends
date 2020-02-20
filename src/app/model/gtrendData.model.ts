@@ -1,13 +1,13 @@
 import { StatisticData } from './statisticData.model';
 
-export class GtrendData {
-  data: GoogleTrendData[];
+export class TrendData {
+  data: GoogleData[];
   statisticData: StatisticData;
 }
 
-export interface GoogleTrendData {
+export interface GoogleData {
   id: string;
   date: string;
-  value: number;
+  trendCount: number;
   symbol: string;
 }

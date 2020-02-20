@@ -5,7 +5,7 @@ import { MatTable } from '@angular/material/table';
 import { DataTableDataSource } from './data-table-datasource';
 import { Subscription } from 'rxjs';
 
-import { GtrendData } from '../model/gtrendData.model';
+import { TrendData } from '../model/gtrendData.model';
 import { ExtractDataService } from '../posts/service/extractdata.service';
 
 @Component({
@@ -16,16 +16,16 @@ import { ExtractDataService } from '../posts/service/extractdata.service';
 export class DataTableComponent implements AfterViewInit, OnInit {
   @ViewChild(MatPaginator, {static: false}) paginator: MatPaginator;
   @ViewChild(MatSort, {static: false}) sort: MatSort;
-  @ViewChild(MatTable, {static: false}) table: MatTable<GtrendData>;
+  @ViewChild(MatTable, {static: false}) table: MatTable<TrendData>;
   dataSource: DataTableDataSource;
 
-  posts: GtrendData = new GtrendData();
+  posts: TrendData = new TrendData();
   private postsSub: Subscription;
 
   constructor(public postsService: ExtractDataService) {}
 
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
-  displayedColumns = ['date', 'value'];
+  displayedColumns = ['date', 'trendCount'];
 
   ngOnInit() {
     this.dataSource = new DataTableDataSource();

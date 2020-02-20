@@ -4,8 +4,8 @@ import { Subject, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { DatePipe } from '@angular/common';
 
-import { GtrendData } from '../../model/gtrendData.model';
-import { YfinanceData } from '../../model/yfinanceData.model';
+import { TrendData } from '../../model/gtrendData.model';
+import { FinanceData } from '../../model/yfinanceData.model';
 import { StatisticData } from '../../model/statisticData.model';
 
 import { ProcessDataService } from './processdata.service';
@@ -13,8 +13,8 @@ import { ProcessDataService } from './processdata.service';
 @Injectable({providedIn: 'root'})
 export class ExtractDataService {
   private postsUpdated = new Subject<any>();
-  private trendPostsUpdated: GtrendData = new GtrendData();
-  private financePostsUpdated: YfinanceData = new YfinanceData();
+  private trendPostsUpdated: TrendData = new TrendData();
+  private financePostsUpdated: FinanceData = new FinanceData();
   private PROCESSDATASERVICE: ProcessDataService = new ProcessDataService();
 
   constructor(private http: HttpClient, private datePipe: DatePipe) {}
@@ -29,7 +29,7 @@ export class ExtractDataService {
           return {
             id: null,
             date: this.formatDate(post.formattedTime),
-            value: post.value,
+            trendCount: post.value,
             symbol: post.symbol
           };
         });
@@ -56,7 +56,7 @@ export class ExtractDataService {
     forkJoin([trends, finance]).subscribe(results => {
       this.trendPostsUpdated.data = results[0];
       this.financePostsUpdated.data = results[1];
-      this.trendPostsUpdated.statisticData = this.PROCESSDATASERVICE.generateStatisticData(this.trendPostsUpdated.data, 'value');
+      this.trendPostsUpdated.statisticData = this.PROCESSDATASERVICE.generateStatisticData(this.trendPostsUpdated.data, 'trendCount');
       this.financePostsUpdated.statisticData = this.PROCESSDATASERVICE.generateStatisticData(this.financePostsUpdated.data, 'open');
 
       this.postsUpdated
