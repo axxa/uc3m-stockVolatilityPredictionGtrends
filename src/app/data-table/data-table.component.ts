@@ -30,7 +30,7 @@ export class DataTableComponent implements AfterViewInit, OnInit {
   ngOnInit() {
     this.dataSource = new DataTableDataSource();
 
-    //this.postsService.getPosts();
+    // this.postsService.getPosts();
     this.postsSub = this.postsService.getPostUpdateListener()
       .subscribe((posts: any) => {
         this.posts.data = posts.trendPosts.data;

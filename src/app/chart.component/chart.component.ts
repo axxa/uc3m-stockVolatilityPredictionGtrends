@@ -17,10 +17,6 @@ export class ChartComponent implements OnInit, OnDestroy {
   private postsSub: Subscription;
   private gtrendData: GtrendData = new GtrendData();
   private yfinanceData: YfinanceData = new YfinanceData();
-  private statisticData: StatisticData;
-  /*private openSigma: number;
-  private openMean: number;
-  private openMeanPlusSigma: number;*/
 
   public chartLabels = [];
   public chartType = 'line';
@@ -32,53 +28,73 @@ export class ChartComponent implements OnInit, OnDestroy {
 
   public chartOptions = {
     scaleShowVerticalLines: false,
-    responsive: true
+    responsive: true,
+
+    scales: {
+      xAxes: [{
+          afterTickToLabelConversion(data) {
+              const xLabels = data.ticks;
+              xLabels.forEach((labels, i) => {
+                  if (i % 2 === 0) {
+                      xLabels[i] = '';
+                  }
+              });
+          }
+      }]
+  }
+
   };
 
-  public chartData = [
+  public trendsChartData = [
+    {
+      data: [],
+      label: 'Mean +/- sigma',
+      fill: false,
+      borderColor: '#ed0c5e',
+    },
     {
       data: [],
       label: 'Search count',
-      //backgroundColor: '#4dc9f6',
-      //borderColor: '#4dc9f6',
-      fill: false,
+      // backgroundColor: '#4dc9f6',
+      fill: true,
     },
     {
       data: [],
-      label: 'Mean + sigma',
+      label: 'Mean +/- sigma',
       fill: false,
-    },
-    {
-      data: [],
-      label: 'Mean - sigma',
-      fill: false,
+      borderColor: '#ed0c5e',
     },
     {
       data: [],
       label: 'Mean',
+      borderColor: '#68de2c',
       fill: false,
     }
   ];
 
-  public chartData2 = [
+  public financeChartData = [
     {
       data: [],
-      label: 'Stock open price'
+      label: 'Mean +/- sigma',
+      fill: false,
+      borderColor: '#ed0c5e',
     },
     {
       data: [],
-      label: 'Mean + sigma',
-      fill: false,
+      label: 'Stock open price',
+      fill: true,
     },
     {
       data: [],
-      label: 'Mean - sigma',
+      label: 'Mean +/- sigma',
       fill: false,
+      borderColor: '#ed0c5e',
     },
     {
       data: [],
       label: 'Mean',
       fill: false,
+      borderColor: '#68de2c',
     }
   ];
 
@@ -90,8 +106,6 @@ export class ChartComponent implements OnInit, OnDestroy {
       .subscribe((posts: any) => {
         this.gtrendData = posts.trendPosts;
         this.yfinanceData = posts.financePosts;
-
-        //this.statisticData = posts.statisticData;
         this.graphChart();
       });
   }
@@ -102,18 +116,18 @@ export class ChartComponent implements OnInit, OnDestroy {
 
   graphChart() {
     this.gtrendData.data.map(mydata => {
-      this.chartData[0].data.push( mydata.value );
-      this.chartData[1].data.push( this.gtrendData.statisticData.meanPlusSigma );
-      this.chartData[2].data.push( this.gtrendData.statisticData.mean - this.gtrendData.statisticData.sigma );
-      this.chartData[3].data.push( this.gtrendData.statisticData.mean );
+      this.trendsChartData[1].data.push( mydata.value );
+      this.trendsChartData[0].data.push( this.gtrendData.statisticData.meanPlusSigma );
+      this.trendsChartData[2].data.push( this.gtrendData.statisticData.meanMinusSigma );
+      this.trendsChartData[3].data.push( this.gtrendData.statisticData.mean );
     });
     this.gtrendData.data.map(mydata => { this.chartLabels.push( mydata.date ); });
 
     this.yfinanceData.data.map(mydata => {
-        this.chartData2[0].data.push( mydata.open );
-        this.chartData2[1].data.push( this.yfinanceData.statisticData.meanPlusSigma );
-        this.chartData2[2].data.push( this.yfinanceData.statisticData.mean - this.yfinanceData.statisticData.sigma );
-        this.chartData2[3].data.push( this.yfinanceData.statisticData.mean );
+        this.financeChartData[1].data.push( mydata.open );
+        this.financeChartData[0].data.push( this.yfinanceData.statisticData.meanPlusSigma );
+        this.financeChartData[2].data.push( this.yfinanceData.statisticData.meanMinusSigma );
+        this.financeChartData[3].data.push( this.yfinanceData.statisticData.mean );
       });
     this.yfinanceData.data.map(mydata => { this.chartLabels2.push( mydata.date ); });
   }
