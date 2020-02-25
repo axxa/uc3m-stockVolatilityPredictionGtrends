@@ -3,7 +3,6 @@ import { Subscription } from 'rxjs';
 
 import { TrendData } from '../model/gtrendData.model';
 import { FinanceData } from '../model/yfinanceData.model';
-import { StatisticData } from '../model/statisticData.model';
 
 import { ExtractDataService } from '../posts/service/extractdata.service';
 
@@ -19,30 +18,47 @@ export class ChartComponent implements OnInit, OnDestroy {
   private yfinanceData: FinanceData = new FinanceData();
 
   public chartLabels = [];
+  public binaryChartLabels = [];
+  public binaryChartLabelsSet = new Set();
   public chartType = 'line';
   public chartLegend = true;
 
   public chartLabels2 = [];
-  public chartType2 = 'line';
-  public chartLegend2 = true;
 
   public chartOptions = {
     scaleShowVerticalLines: false,
     responsive: true,
-
     scales: {
       xAxes: [{
           afterTickToLabelConversion(data) {
               const xLabels = data.ticks;
               xLabels.forEach((labels, i) => {
-                  if (i % 2 === 0) {
+                  if (i % 10 !== 0) {
                       xLabels[i] = '';
                   }
               });
           }
       }]
-  }
+    }
+  };
 
+  public binaryChartOptions = {
+    scaleShowVerticalLines: false,
+    responsive: true,
+    scales: {
+      yAxes: [{
+        afterTickToLabelConversion(data) {
+          const xLabels = data.ticks;
+          xLabels.forEach((labels, i) => {
+              // tslint:disable-next-line: triple-equals
+              if (labels != 1.0) {
+                xLabels[i] = '';
+              }
+          });
+
+      }
+      }]
+    }
   };
 
   public trendsChartData = [
@@ -98,6 +114,19 @@ export class ChartComponent implements OnInit, OnDestroy {
     }
   ];
 
+  public binaryComparisonChartData = [
+    {
+      data: [],
+      label: 'trendBinary',
+      fill: false
+    },
+    {
+      data: [],
+      label: 'financeBinary',
+      fill: false
+    }
+  ];
+
   constructor(public postsService: ExtractDataService) {}
 
   ngOnInit(): void {
@@ -130,6 +159,16 @@ export class ChartComponent implements OnInit, OnDestroy {
         this.financeChartData[3].data.push( this.yfinanceData.statisticData.mean );
       });
     this.yfinanceData.data.map(mydata => { this.chartLabels2.push( mydata.date ); });
+
+    this.gtrendData.binarySeries.forEach((value: boolean, key: Date, map: Map<Date, boolean>) => {
+      this.binaryComparisonChartData[0].data.push(value);
+      this.binaryChartLabelsSet.add( key );
+    });
+    this.yfinanceData.binarySeries.forEach((value: boolean, key: Date, map: Map<Date, boolean>) => {
+      this.binaryComparisonChartData[1].data.push(value);
+      this.binaryChartLabelsSet.add( key );
+    });
+    this.binaryChartLabels = Array.from(this.binaryChartLabelsSet.values());
   }
 
 }

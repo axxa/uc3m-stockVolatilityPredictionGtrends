@@ -89,4 +89,15 @@ export class ProcessDataService {
     return statisticData;
   }
 
+  generateBinarySeries(dateValueAttrsContainerArray: any[], dateAttrName: string,
+                       valueAttrName: string, positiveTreshold: number,
+                       negativeThreshold: number): Map<Date, boolean> {
+    const binarySeriesMap = new Map();
+    dateValueAttrsContainerArray.map(result => {
+      binarySeriesMap.set(result[dateAttrName],
+        result[valueAttrName] <= positiveTreshold && result[valueAttrName] >= negativeThreshold ? 0 : 1 );
+    });
+    return binarySeriesMap;
+  }
+
 }

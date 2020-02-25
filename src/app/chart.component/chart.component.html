@@ -1,22 +1,48 @@
-<div class="row">
-  <div class="block" style="display: block">
-    <mat-card-title>Google trends data chart</mat-card-title>
-    <canvas baseChart
-      [datasets]="trendsChartData"
-      [labels]="chartLabels"
-      [options]="chartOptions"
-      [legend]="chartLegend"
-      [chartType]="chartType">
-    </canvas>
+<div class="column">
+
+  <div class="row">
+    <div class="block" style="display: block">
+      <mat-card class="example-card">
+        <mat-card-title>Google trends data chart</mat-card-title>
+        <canvas baseChart
+          [datasets]="trendsChartData"
+          [labels]="chartLabels"
+          [options]="chartOptions"
+          [legend]="chartLegend"
+          [chartType]="chartType">
+        </canvas>
+      </mat-card>
+    </div>
+    <div class="block" style="display: block">
+      <mat-card class="example-card">
+        <mat-card-title>Yahoo finance data chart</mat-card-title>
+        <canvas baseChart
+          [datasets]="financeChartData"
+          [labels]="chartLabels2"
+          [options]="chartOptions"
+          [legend]="chartLegend"
+          [chartType]="chartType">
+        </canvas>
+      </mat-card>
+    </div>
   </div>
-  <div class="block" style="display: block">
-    <mat-card-title>Yahoo finance data chart</mat-card-title>
-    <canvas baseChart
-      [datasets]="financeChartData"
-      [labels]="chartLabels2"
-      [options]="chartOptions"
-      [legend]="chartLegend2"
-      [chartType]="chartType2">
-    </canvas>
+  <br>
+
+
+  <div class="row">
+    <div class="block" style="display: block">
+      <mat-card class="example-card">
+        <mat-card-title>Binary comparison</mat-card-title>
+        <canvas baseChart
+          [datasets]="binaryComparisonChartData"
+          [labels]="binaryChartLabels"
+          [options]="binaryChartOptions"
+          [legend]="chartLegend"
+          [chartType]="chartType">
+        </canvas>
+      </mat-card>
+    </div>
+
+
   </div>
 </div>
