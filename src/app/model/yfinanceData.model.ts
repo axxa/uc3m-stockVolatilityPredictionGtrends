@@ -3,6 +3,7 @@ import { StatisticData } from './statisticData.model';
 export class FinanceData {
   data: YahooData[];
   statisticData: StatisticData;
+  binarySeries: Map<Date, boolean>;
 }
 
 export interface YahooData {
