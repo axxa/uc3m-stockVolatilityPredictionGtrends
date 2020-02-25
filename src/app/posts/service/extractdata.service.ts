@@ -6,7 +6,6 @@ import { DatePipe } from '@angular/common';
 
 import { TrendData } from '../../model/gtrendData.model';
 import { FinanceData } from '../../model/yfinanceData.model';
-import { StatisticData } from '../../model/statisticData.model';
 
 import { ProcessDataService } from './processdata.service';
 
@@ -58,7 +57,10 @@ export class ExtractDataService {
       this.financePostsUpdated.data = results[1];
       this.trendPostsUpdated.statisticData = this.PROCESSDATASERVICE.generateStatisticData(this.trendPostsUpdated.data, 'trendCount');
       this.financePostsUpdated.statisticData = this.PROCESSDATASERVICE.generateStatisticData(this.financePostsUpdated.data, 'open');
-
+      this.trendPostsUpdated.binarySeries = this.PROCESSDATASERVICE.generateBinarySeries(this.trendPostsUpdated.data,
+        'date', 'trendCount', this.trendPostsUpdated.statisticData.meanPlusSigma, this.trendPostsUpdated.statisticData.meanMinusSigma);
+      this.financePostsUpdated.binarySeries = this.PROCESSDATASERVICE.generateBinarySeries(this.financePostsUpdated.data,
+        'date', 'open', this.financePostsUpdated.statisticData.meanPlusSigma, this.financePostsUpdated.statisticData.meanMinusSigma);
       this.postsUpdated
         .next({
           trendPosts: this.trendPostsUpdated,
@@ -72,7 +74,7 @@ export class ExtractDataService {
   }
 
   formatDate(date: string) {
-    const formattedDate = this.datePipe.transform(new Date(date), 'yy/MM/dd') ;
+    const formattedDate = this.datePipe.transform(new Date(date), 'yyyy/MM/dd') ;
     return formattedDate;
   }
 
