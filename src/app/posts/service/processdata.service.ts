@@ -1,6 +1,10 @@
 import * as ss from 'simple-statistics';
 
 import { StatisticData } from '../../model/statisticData.model';
+import { ForecastData } from '../../model/forecastData.model';
+import { ForecastClasses } from '../../model/forecastData.model';
+
+import Utils from '../../utils/utils';
 
 export class ProcessDataService {
 
@@ -95,9 +99,55 @@ export class ProcessDataService {
     const binarySeriesMap = new Map();
     dateValueAttrsContainerArray.map(result => {
       binarySeriesMap.set(result[dateAttrName],
-        result[valueAttrName] <= positiveTreshold && result[valueAttrName] >= negativeThreshold ? 0 : 1 );
+        result[valueAttrName] <= positiveTreshold && result[valueAttrName] >= negativeThreshold ? false : true );
     });
     return binarySeriesMap;
+  }
+
+  /**
+   * TODO
+   * @param useToPredictArray the used array for prediction
+   * @param toPredictArray the array to predict
+   */
+  generateForecast(useToPredictBinarySerie: Map<Date, boolean>, toPredictBinarySerie: Map<Date, boolean>): ForecastData {
+
+    const forecastData = new ForecastData();
+    let foreCastClass: ForecastClasses;
+    forecastData.binaryForecastSerie = [];
+    // tslint:disable-next-line: one-variable-per-declaration
+    let tp = 0, tn = 0, fp = 0, fn = 0;
+    useToPredictBinarySerie.forEach((trendValue: boolean, key: Date, map: Map<Date, boolean>) => {
+      let dateToSearch = new Date(key);
+      dateToSearch = Utils.addDays(dateToSearch, 1);
+      const strdateToSearch = Utils.formatDate(dateToSearch.toString());
+      // console.log('key: ', key, ' dateToSearch: ', dateToSearch, ' strdateToSearch: ', strdateToSearch);
+      // @ts-ignore
+      const toPredictValue = toPredictBinarySerie.get(strdateToSearch);
+      // console.log('comparing trend binary value: ', key, ',', trendValue, ' with:', strdateToSearch, ',', toPredictValue);
+      if (toPredictValue != null) {
+        if (trendValue === true && toPredictValue === true) {
+          foreCastClass = ForecastClasses.TP;
+          tp++;
+        } else if (trendValue === true && toPredictValue === false) {
+          foreCastClass = ForecastClasses.TN;
+          tn++;
+        } else if (trendValue === false && toPredictValue === true) {
+          foreCastClass = ForecastClasses.FP;
+          fp++;
+        } else if (trendValue === false && toPredictValue === false) {
+          foreCastClass = ForecastClasses.FN;
+          fn++;
+        }
+        forecastData.binaryForecastSerie.push(foreCastClass);
+        // console.log('result is: ', foreCastClass);
+      }
+    });
+
+    forecastData.accuracy = (tp + tn) / (tp + tn + fp + fn);
+    forecastData.precision = tp / ( tp + fp );
+    forecastData.recall = tp / ( tp + tn );
+
+    return forecastData;
   }
 
 }

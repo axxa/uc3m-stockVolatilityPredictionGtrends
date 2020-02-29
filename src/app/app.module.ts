@@ -24,6 +24,7 @@ import { GtrendListComponent } from './posts/gtrend-list/gtrend-list.component';
 import { ChartComponent } from './chart.component/chart.component';
 import { YfinanceListComponent } from './yfinance-list/yfinance-list.component';
 import { DataTableComponent } from './data-table/data-table.component';
+import { ForecastListComponent } from './forecast-list/forecast-list.component';
 
 @NgModule({
   declarations: [
@@ -32,7 +33,8 @@ import { DataTableComponent } from './data-table/data-table.component';
     GtrendListComponent,
     ChartComponent,
     YfinanceListComponent,
-    DataTableComponent
+    DataTableComponent,
+    ForecastListComponent
   ],
   imports: [
     BrowserModule,
