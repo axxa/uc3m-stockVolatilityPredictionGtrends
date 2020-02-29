@@ -24,7 +24,7 @@ export class GtrendListComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    //this.postsSub.unsubscribe();
+    // this.postsSub.unsubscribe();
   }
 
 }
