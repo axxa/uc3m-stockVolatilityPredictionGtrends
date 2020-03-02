@@ -1,5 +1,13 @@
 <app-header></app-header>
 <main>
+  <ol>
+    <mat-form-field>
+      <mat-label>Trend word</mat-label>
+      <input matInput [(ngModel)]="trendWord">
+    </mat-form-field>
+    <button mat-raised-button (click)="onFireSearch()">Begin</button>
+  </ol>
+
   <app-chart></app-chart>
   <br>
   <!--app-data-table></app-data-table-->

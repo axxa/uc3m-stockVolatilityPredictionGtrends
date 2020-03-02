@@ -1,7 +1,16 @@
 <br>
 <div *ngIf="posts != null">
-  <div>accuracy: {{ posts.accuracy *100}}</div>
-  <div>precision: {{ posts.precision *100}}</div>
-  <div>recall: {{ posts.recall *100}}</div>
+  <mat-card class="example-card">
+    <mat-card-header>
+      <mat-card-title>Result</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div>accuracy: {{ (posts.accuracy *100).toFixed(2) }} %</div>
+      <div>precision: {{ (posts.precision *100).toFixed(2) }} %</div>
+      <div>recall: {{ (posts.recall *100).toFixed(2) }} %</div>
+    </mat-card-content>
+  </mat-card>
+
 </div>
 <br>

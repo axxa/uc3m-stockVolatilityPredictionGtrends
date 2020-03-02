@@ -20,9 +20,7 @@ export class ForecastListComponent implements OnInit, OnDestroy {
     // this.postsService.getPosts();
     this.postsSub = this.postsService.getPostUpdateListener()
       .subscribe((posts: any) => {
-        if (posts != null || posts !== undefined){
           this.posts = posts.forecastData;
-        }
       });
   }
 

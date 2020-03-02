@@ -20,10 +20,10 @@ export class ExtractDataService {
 
   constructor(private http: HttpClient, private datePipe: DatePipe) {}
 
-  getPosts() {
+  getPosts(trendWord: string, stock: string) {
     const trends = this.http
       .get<{gtrendsdata: any}>(
-        'http://localhost:3000/volatilitypred/extractTrends'
+        'http://localhost:3000/volatilitypred/extractTrends/' + trendWord
       )
       .pipe(map((postData) => {
         return postData.gtrendsdata.map(post => {
@@ -38,7 +38,7 @@ export class ExtractDataService {
 
     const finance = this.http
     .get<{stockdata: any}>(
-      'http://localhost:3000/volatilitypred/extractFinance'
+      'http://localhost:3000/volatilitypred/extractFinance/' + stock
     )
     .pipe(map((postData) => {
       return postData.stockdata.map(post => {

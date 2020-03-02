@@ -10,6 +10,9 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false}));
 
+const startDate = new Date('2010-01-01');
+const endDate = new Date('2019-12-31');
+
 /*Access to XMLHttpRequest at 'http://localhost:3000/api/ibex35volatilitypred' from origin 'http://localhost:8080' has
 been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.*/
 app.use((req, res, next) => {
@@ -25,17 +28,15 @@ app.use((req, res, next) => {
   next();
 });
 
-//app.get('/volatilitypred/extractdata/:trendWord', (req, res, next) => {
-app.get('/volatilitypred/extractTrends', (req, res, next) => {
+app.get('/volatilitypred/extractTrends/:trendWord', (req, res, next) => {
 
-  const startDate = new Date();
-  startDate.setDate(startDate.getDay() - 2);
-  const keyword = 'another';
+  const keyword = req.params.trendWord;
   const optionsObject = {
-    keyword: keyword,//req.params.trendWord,//'ibex35',
-    property: 'web search',
+    keyword: keyword,
+    property: 'news',
     //resolution: 'COUNTRY',
     startTime: startDate,
+    endTime: endDate
   }
   googleTrends.interestOverTime(optionsObject)
   .then(function(results){
@@ -58,15 +59,12 @@ app.get('/volatilitypred/extractTrends', (req, res, next) => {
   });
 });
 
-app.get('/volatilitypred/extractFinance', (req, res, next) => {
-
-  const startDate = new Date();
-  startDate.setDate(startDate.getDay() - 2);
+app.get('/volatilitypred/extractFinance/:stock', (req, res, next) => {
 
   const optionsObject = {
-    symbol: 'BBVA',
+    symbol: req.params.stock,
     from: startDate,
-    to: new Date()
+    to: endDate
   }
 
   yahooFinance.historical(optionsObject)

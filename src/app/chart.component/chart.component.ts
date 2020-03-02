@@ -14,8 +14,8 @@ import { ExtractDataService } from '../posts/service/extractdata.service';
 export class ChartComponent implements OnInit, OnDestroy {
 
   private postsSub: Subscription;
-  private gtrendData: TrendData = new TrendData();
-  private yfinanceData: FinanceData = new FinanceData();
+  public gtrendData: TrendData = new TrendData();
+  public yfinanceData: FinanceData = new FinanceData();
 
   public chartLabels = [];
   public binaryChartLabels = [];
@@ -130,7 +130,6 @@ export class ChartComponent implements OnInit, OnDestroy {
   constructor(public postsService: ExtractDataService) {}
 
   ngOnInit(): void {
-    this.postsService.getPosts();
     this.postsSub = this.postsService.getPostUpdateListener()
       .subscribe((posts: any) => {
         this.gtrendData = posts.trendPosts;
