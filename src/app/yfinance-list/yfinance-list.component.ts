@@ -17,11 +17,11 @@ export class YfinanceListComponent implements OnInit, OnDestroy {
   constructor(public postsService: ExtractDataService) {}
 
   ngOnInit(): void {
-    /*this.postsService.getPosts();
+    // this.postsService.getPosts();
     this.postsSub = this.postsService.getPostUpdateListener()
       .subscribe((posts: any) => {
         this.posts = posts.financePosts.data;
-      });*/
+      });
   }
 
   ngOnDestroy(): void {

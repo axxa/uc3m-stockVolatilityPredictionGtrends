@@ -16,11 +16,11 @@ export class GtrendListComponent implements OnInit, OnDestroy {
   constructor(public postsService: ExtractDataService) {}
 
   ngOnInit(): void {
-    /*this.postsService.getPosts();
+    // this.postsService.getPosts();
     this.postsSub = this.postsService.getPostUpdateListener()
       .subscribe((posts: any) => {
         this.posts = posts.trendPosts;
-      });*/
+      });
   }
 
   ngOnDestroy(): void {
