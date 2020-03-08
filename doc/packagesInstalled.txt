@@ -5,10 +5,11 @@
   npm install --save body-parser
 - rxjs //TODO
 
-
 npm install --save yahoo-finance
-npm uninstall google-finance
-
-
 npm install simple-statistics
 npm install --save hammerjs
+npm i jquery@1.9.1 --save
+npm i jasmine-core@3.5 --save
+npm install --save bootstrap
+npm install --save dateformat
+npm audit fix

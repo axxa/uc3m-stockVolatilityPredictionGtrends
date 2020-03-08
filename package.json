@@ -26,6 +26,7 @@
     "bootstrap": "^4.4.1",
     "chart.js": "^2.9.3",
     "core-js": "^2.5.5",
+    "dateformat": "^3.0.3",
     "express": "^4.17.1",
     "google-finance": "^0.1.12",
     "google-trends-api": "^4.9.0",

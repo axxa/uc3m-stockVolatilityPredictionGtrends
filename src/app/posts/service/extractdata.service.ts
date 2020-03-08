@@ -22,29 +22,30 @@ export class ExtractDataService {
 
   getPosts(trendWord: string, stock: string) {
     const trends = this.http
-      .get<{gtrendsdata: any}>(
+      .get<{gtrendsdata: any, statisticData: any, binarySeries: any}>(
         'http://localhost:3000/volatilitypred/extractTrends/' + trendWord
       )
       .pipe(map((postData) => {
-        return postData.gtrendsdata.map(post => {
+        postData.gtrendsdata = postData.gtrendsdata.map(post => {
           return {
             id: null,
-            date: this.formatDate(post.formattedTime),
+            date: post.formattedTime,
             trendCount: post.value,
-            symbol: post.symbol
+            symbol: post.symbol,
           };
         });
+        return postData;
       }));
 
     const finance = this.http
-    .get<{stockdata: any}>(
+    .get<{stockdata: any, statisticData: any, binarySeries: any}>(
       'http://localhost:3000/volatilitypred/extractFinance/' + stock
     )
     .pipe(map((postData) => {
-      return postData.stockdata.map(post => {
+      postData.stockdata = postData.stockdata.map(post => {
         return {
           id: null,
-          date: this.formatDate(post.date),
+          date: post.date,
           open: post.open,
           high: post.high,
           low: post.low,
@@ -52,17 +53,30 @@ export class ExtractDataService {
           symbol: post.symbol
         };
       });
+      return postData;
     }));
-
+    /*
+    const data = this.http
+    .get<{stockdata: any, statisticData: any, binarySeries: any}>(
+      'http://localhost:3000/volatilitypred/extractData/' + stock
+    )
+    .pipe(map((postData) => {
+      return postData;
+    }));
+    */
     forkJoin([trends, finance]).subscribe(results => {
-      this.trendPostsUpdated.data = results[0];
-      this.financePostsUpdated.data = results[1];
-      this.trendPostsUpdated.statisticData = this.PROCESSDATASERVICE.generateStatisticData(this.trendPostsUpdated.data, 'trendCount');
-      this.financePostsUpdated.statisticData = this.PROCESSDATASERVICE.generateStatisticData(this.financePostsUpdated.data, 'open');
-      this.trendPostsUpdated.binarySeries = this.PROCESSDATASERVICE.generateBinarySeries(this.trendPostsUpdated.data,
-        'date', 'trendCount', this.trendPostsUpdated.statisticData.meanPlusSigma, this.trendPostsUpdated.statisticData.meanMinusSigma);
-      this.financePostsUpdated.binarySeries = this.PROCESSDATASERVICE.generateBinarySeries(this.financePostsUpdated.data,
-        'date', 'open', this.financePostsUpdated.statisticData.meanPlusSigma, this.financePostsUpdated.statisticData.meanMinusSigma);
+      this.trendPostsUpdated.data = results[0].gtrendsdata;
+      this.trendPostsUpdated.statisticData = results[0].statisticData;
+      this.trendPostsUpdated.binarySeries = results[0].binarySeries;
+
+      this.financePostsUpdated.data = results[1].stockdata;
+      this.financePostsUpdated.statisticData = results[1].statisticData;
+      this.financePostsUpdated.binarySeries = results[1].binarySeries;
+
+      // this.trendPostsUpdated.binarySeries = this.PROCESSDATASERVICE.generateBinarySeries(this.trendPostsUpdated.data,
+      //  'date', 'trendCount', this.trendPostsUpdated.statisticData.meanPlusSigma, this.trendPostsUpdated.statisticData.meanMinusSigma);
+      // this.financePostsUpdated.binarySeries = this.PROCESSDATASERVICE.generateBinarySeries(this.financePostsUpdated.data,
+      // 'date', 'open', this.financePostsUpdated.statisticData.meanPlusSigma, this.financePostsUpdated.statisticData.meanMinusSigma);
       this.forecastData = this.PROCESSDATASERVICE.generateForecast(this.trendPostsUpdated.binarySeries,
         this.financePostsUpdated.binarySeries);
       this.postsUpdated
