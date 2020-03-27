@@ -16,6 +16,9 @@ speed-measure-plugin*.json
 
 # IDEs and editors
 /.idea
+/python/.idea
+/python/workspace.xml
+**/__pycache__
 .project
 .classpath
 .c9/
