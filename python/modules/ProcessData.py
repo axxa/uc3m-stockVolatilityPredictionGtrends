@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 
+import modules.Utils as UTILS
 
 def merge_binary_time_series(left_df, right_df, date_column_name):
     return pd.merge(left_df, right_df, on=date_column_name, how='left').fillna(0)
