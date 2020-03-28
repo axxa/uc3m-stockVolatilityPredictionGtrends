@@ -10,8 +10,8 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false}));
 
-const startDate = new Date('2010-01-01');
-const endDate = new Date('2019-12-31');
+//const startDate = new Date('2010-12-11');
+//const endDate = new Date('2019-12-31');
 
 /*Access to XMLHttpRequest at 'http://localhost:3000/api/ibex35volatilitypred' from origin 'http://localhost:8080' has
 been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.*/
@@ -28,9 +28,12 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/volatilitypred/extractTrends/:trendWord', (req, res, next) => {
+app.get('/volatilitypred/extractTrends/:trendWord/:startDate/:endDate', (req, res, next) => {
 
   const keyword = req.params.trendWord;
+  const startDate = new Date(req.params.startDate);
+  const endDate = new Date(req.params.endDate);
+
   const optionsObject = {
     keyword: keyword,
     property: 'news',
@@ -59,7 +62,10 @@ app.get('/volatilitypred/extractTrends/:trendWord', (req, res, next) => {
   });
 });
 
-app.get('/volatilitypred/extractFinance/:stock', (req, res, next) => {
+app.get('/volatilitypred/extractFinance/:stock/:startDate/:endDate', (req, res, next) => {
+
+  const startDate = new Date(req.params.startDate);
+  const endDate = new Date(req.params.endDate);
 
   const optionsObject = {
     symbol: req.params.stock,
