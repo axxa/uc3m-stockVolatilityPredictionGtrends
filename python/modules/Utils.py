@@ -23,3 +23,10 @@ def get_range_dates_by_chunks(start: str, end: str, window: int):
         if chunk_final_date > end:
             chunk_final_date = end
         yield str(start.strftime("%Y-%m-%d")), str(chunk_final_date.strftime("%Y-%m-%d"))
+
+
+def multiple_dfs(df_list, sheets, writer, spaces):
+  row = 0
+  for dataframe in df_list:
+    dataframe.to_excel(writer, sheet_name=sheets, startrow=row, startcol=0)
+    row = row + len(dataframe.index) + spaces + 1
