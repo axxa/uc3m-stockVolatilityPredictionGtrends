@@ -34,52 +34,39 @@ ROC: Receiver Operating Characteristic
   TruePositiveRate = TruePositive / (TruePositive + FalseNegative)
   FalsePositiveRate = FalsePositive / (FalsePositive + TrueNegative)
 '''
-def roc_curve(data, target):
+def roc_curve__(data, target):
     X = data
     y = target
-    print(y.shape)
-    n_classes = y.shape[0]
 
-    # Add noisy features to make the problem harder
-    random_state = np.random.RandomState(0)
-    #n_samples, n_features = X.shape
-    #X = np.c_[X, random_state.randn(n_samples, 200 * n_features)]
-
-    # shuffle and split training and test sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.5,
-                                                        random_state=0)
-
-    # Learn to predict each class against the other
-    classifier = OneVsRestClassifier(svm.SVC(kernel='linear', probability=True,
-                                             random_state=random_state))
-    y_score = classifier.fit(X_train, y_train).decision_function(X_test)
-
-    # Compute ROC curve and ROC area for each class
-    fpr = dict()
-    tpr = dict()
-    roc_auc = dict()
-    for i in range(n_classes):
-      fpr[i], tpr[i], _ = roc_curve(y_test[:, i], y_score[:, i])
-      roc_auc[i] = auc(fpr[i], tpr[i])
-
-    # Compute micro-average ROC curve and ROC area
-    fpr["micro"], tpr["micro"], _ = roc_curve(y_test.ravel(), y_score.ravel())
-    roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
-
-    # plot
-
-    plt.figure()
-    lw = 2
-    plt.plot(fpr[2], tpr[2], color='darkorange',
-             lw=lw, label='ROC curve (area = %0.2f)' % roc_auc[2])
-    plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
-    plt.xlim([0.0, 1.0])
-    plt.ylim([0.0, 1.05])
-    plt.xlabel('False Positive Rate')
-    plt.ylabel('True Positive Rate')
-    plt.title('Receiver operating characteristic example')
-    plt.legend(loc="lower right")
-    plt.show()
+    from sklearn.datasets import make_classification
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import roc_curve
+    from matplotlib import pyplot
+    # generate 2 class dataset
+    X, y = make_classification(n_samples=1000, n_classes=2, random_state=1)
+    # split into train/test sets
+    trainX, testX, trainy, testy = train_test_split(X, y, test_size=0.5, random_state=2)
+    # fit a model
+    model = LogisticRegression(solver='lbfgs')
+    # model.fit(trainX, trainy)
+    # predict probabilities
+    yhat = model.predict_proba(testX)
+    # retrieve just the probabilities for the positive class
+    pos_probs = yhat[:, 1]
+    # plot no skill roc curve
+    pyplot.plot([0, 1], [0, 1], linestyle='--', label='No Skill')
+    # calculate roc curve for model
+    fpr, tpr, _ = roc_curve(testy, pos_probs)
+    # plot model roc curve
+    pyplot.plot(fpr, tpr, marker='.', label='Logistic')
+    # axis labels
+    pyplot.xlabel('False Positive Rate')
+    pyplot.ylabel('True Positive Rate')
+    # show the legend
+    pyplot.legend()
+    # show the plot
+    pyplot.show()
 
 
 
@@ -147,12 +134,8 @@ def generate_metrics(binary_trend_arr, binary_finance_arr):
           f'f1: {round(f1, 4)}'
           )
 
-    pred_df = pd.DataFrame([[accuracy, precision, recall,
-                             trend_cero_count, trend_uno_count,
-                             finance_cero_count, finance_uno_count]],
-                           columns=['accuracy', 'precision', 'recall',
-                                    'trend_ceros', 'trend_unos',
-                                    'finance_ceros', 'finance_unos'])
+    pred_df = pd.DataFrame([[accuracy, precision, recall]],
+                           columns=['accuracy', 'precision', 'recall'])
 
     pred2_df = pd.DataFrame([[sensitivity, specificity, g_mean, f1]],
                             columns=['sensitivity', 'specificity', 'g_mean', 'f1'])
@@ -167,7 +150,11 @@ def generate_metrics(binary_trend_arr, binary_finance_arr):
       ['negativa', fn, tn]],
       columns=['', 'positiva', 'negativa'])
 
-    roc_curve(y_true, y_pred)
+    #roc_curve__(y_true, y_pred)
+    print(skl.roc_curve(y_true, y_pred))
+    #print(skl.roc_auc_score(y_true, y_pred))
+    # skl.plot_roc_curve()
+    # calculate roc auc
 
     return matriz_confusion_df, pred_df, pred2_df, pred3_df
 
