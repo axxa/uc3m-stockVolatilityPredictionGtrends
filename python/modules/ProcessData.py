@@ -1,7 +1,29 @@
 import numpy as np
 import pandas as pd
+import math
 from datetime import datetime
 from datetime import timedelta
+
+
+def fit_trend_binary_series(trend_df, finance_df):
+  #  Obtener fechas mas proximas de las binarias
+  min_true_date = finance_df.date.min()
+  max_true_date = finance_df.date.max()
+  aux = 10
+  aux2 = 10
+  for x in trend_df['date']:
+    if 0 < (min_true_date - x).days < aux:
+      aux = (min_true_date - x).days
+      earliest_trend_date = x
+    if 0 < (max_true_date - x).days < aux2:
+      aux2 = (max_true_date - x).days
+      oldest_trend_date = x
+
+  mask = (trend_df['date'] >= earliest_trend_date) & (trend_df['date'] <= oldest_trend_date)
+  trend_df = trend_df.loc[mask]
+
+  return trend_df
+
 
 def merge_binary_time_series(left_df, right_df, date_column_name):
     return pd.merge(left_df, right_df, on=date_column_name, how='left').fillna(0)
@@ -12,7 +34,7 @@ def calculate_return(data_array: np.array):
     for idx in range(data_array.shape[0]):
         if idx != 0:
             if data_array[idx - 1] != 0:
-                arr[idx] = float(data_array[idx] / data_array[idx - 1]) - 1
+                arr[idx] = float(data_array[idx] / data_array[idx - 1])
             else:
                 arr[idx] = 0
     return arr
@@ -29,26 +51,26 @@ def prune_day_from_dataframe(df, days_to_exclude):
     return df
 
 
-def prune_row_correspondance_by_value(response_trend_df, response_finance_df,
+def prune_row_correspondance_by_value(left_df, right_df,
                                       column_name, value, right_correspondance, date_column_name):
     # Selecciono primero los valores que se van a podar en el primer dataframe
-    df = response_trend_df.loc[response_trend_df[column_name] == value].copy()
+    df = left_df.loc[left_df[column_name] == value].copy()
     # Se guarda un array con las fechas que van a servir para podar los datos en el otro array
     df[date_column_name] = df[date_column_name] + timedelta(days=right_correspondance)
     date_np = np.array(df[date_column_name])
 
     # Borro en el df derecho
     for date_ in date_np:
-        response_finance_df = response_finance_df[response_finance_df[date_column_name] != date_]
-    response_finance_df = response_finance_df.reset_index(drop=True)
+        right_df = right_df[right_df[date_column_name] != date_]
+    right_df = right_df.reset_index(drop=True)
     # Borro en el df izquierdo
-    response_trend_df = response_trend_df.loc[response_trend_df[column_name] != value]
-    response_trend_df = response_trend_df.reset_index(drop=True)
-    return response_trend_df, response_finance_df
+    left_df = left_df.loc[left_df[column_name] != value]
+    left_df = left_df.reset_index(drop=True)
+    return left_df, right_df
 
 class ProcessData:
 
-    def __init__(self, context=''):
+    def __init__(self, context='', discard_first=False):
         self.context = context
         self.std: float = 0
         self.mean: float = 0
@@ -57,37 +79,44 @@ class ProcessData:
         self.binary_serie_df: pd.DataFrame()
         self.normalized_: np.array
         self.normalized_df: pd.DataFrame()
-        # self.norm_binary_serie_df: pd.DataFrame()
+        self.discard_first = discard_first
 
     def generate_statistic_data(self, data_array: np.array):
+        to_norm_arr = data_array
+        if self.discard_first:
+            data_array = data_array[1:]
+
         self.std = np.std(data_array)
         self.mean = np.mean(data_array)
         self.mean_plus_std = self.mean + self.std
         self.mean_minus_std = self.mean - self.std
-        self.normalize(data_array)
+        self.normalize(to_norm_arr)
 
-    def generate_binary_series(self, data_array: np.array, discard_first):
+    def generate_binary_series(self, data_array: np.array):
         arr_auxiliar = np.arange(0, data_array.size)
         binary_serie = np.zeros((data_array.size,), dtype=int)
         idx_binary_series = arr_auxiliar[(data_array > self.mean_plus_std) | (data_array < self.mean_minus_std)]
         for idx in idx_binary_series:
             binary_serie[idx] = 1
-        '''if discard_first:
-            binary_serie[0] = 0'''
+        if self.discard_first:
+            binary_serie[0] = 0
         # normalized binary series
         norm_binary_serie = np.zeros((data_array.size,), dtype=int)
         idx_norm_binary_series = arr_auxiliar[(self.normalized_ > self.mean_plus_std) |
                                               (self.normalized_ < self.mean_minus_std)]
         for idx in idx_norm_binary_series:
             norm_binary_serie[idx] = 1
-        '''if discard_first:
-            norm_binary_serie[0] = 0'''
+        if self.discard_first:
+            norm_binary_serie[0] = 0
         self.binary_serie_df = pd.DataFrame(binary_serie, columns=['binary_' + self.context])
         # self.norm_binary_serie_df = pd.DataFrame(binary_serie, columns=["norm_binary_" + self.context])
 
     def normalize(self, data_array: np.array):
         f = lambda x: (x - self.mean) / self.std
         self.normalized_ = f(data_array)
+        if self.discard_first:
+          self.normalized_[0] = 0
         self.normalized_df = pd.DataFrame(self.normalized_, columns=['norm_' + self.context])
+
 
 

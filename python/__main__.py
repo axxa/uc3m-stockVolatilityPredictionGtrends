@@ -26,25 +26,29 @@ def process_data(response_trend_df, response_finance_df):
     response_trend_df, response_finance_df = prd.prune_row_correspondance_by_value(response_trend_df,
                                                                                    response_finance_df,
                                                                                    'value', 0, 1, 'date')
+    response_finance_df, response_trend_df = prd.prune_row_correspondance_by_value(response_finance_df,
+                                                                                   response_trend_df,
+                                                                                   'adjClose', 0, -1, 'date')
 
     response_trend_df = prd.prune_day_from_dataframe(response_trend_df, [4, 5])  # Viernes y Sabado
     response_finance_df = prd.prune_day_from_dataframe(response_finance_df, [5, 6])  # Sabado y Domingo
 
-    trend_statistics = prd.ProcessData('trend')
+    response_trend_df = prd.fit_trend_binary_series(response_trend_df, response_finance_df)
+    trend_statistics = prd.ProcessData('trend', False)
     trend_value_arr = np.array(response_trend_df['value'])
     trend_statistics.generate_statistic_data(trend_value_arr)
-    trend_statistics.generate_binary_series(trend_value_arr, False)
+    trend_statistics.generate_binary_series(trend_value_arr)
     trend_statistics.normalize(trend_value_arr)
     response_trend_df['binary_' + trend_statistics.context] = \
       trend_statistics.binary_serie_df['binary_' + trend_statistics.context]
     response_trend_df = response_trend_df.join(trend_statistics.normalized_df)
 
     # -----------------------------------------------------------------------------
-    finance_statistics = prd.ProcessData('finance')
+    finance_statistics = prd.ProcessData('finance', True)
     return_array = prd.calculate_return(np.array(response_finance_df['adjClose']))
 
     finance_statistics.generate_statistic_data(return_array)
-    finance_statistics.generate_binary_series(return_array, True)
+    finance_statistics.generate_binary_series(return_array)
     response_finance_df['returns'] = return_array
     finance_statistics.normalize(return_array)
 
