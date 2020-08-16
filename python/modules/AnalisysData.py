@@ -7,9 +7,8 @@ import sklearn.metrics as skl
 import scipy.stats as stats
 import openpyxl
 
+import modules.Utils as Utils
 from constants.CONSTANTS import CONSTANTS
-import modules.Utils as UTILS
-
 '''
 Matriz de confusion
                | Positive Prediction | Negative Prediction
@@ -61,26 +60,32 @@ def metricas_metodo2(normalizada_trend, normalizada_finance):
     # return np.cov(trend_arr, finance_arr)
     return np.cov(normalizada_trend, normalizada_finance, bias=True)[0][1]
 
+
 # METODO3
 # Normalizamos la serie TRENDS.
-# Pintamos un histograma donde el ejeX muestre las marcas de los valores normalizados de la serie TRENDS y el ejeY represente la frecuencia de valores "1" de la serie BINARIZADA COTIZACIONES.
-# Si todo va bien, veremos un histograma en forma de curva, donde existirán más valores "1" en el extremo del histograma (que corresponden a valores de TRENDS mayores...)
-def metricas_metodo3(prune_trend_df, prune_finance_df, trend_statistics, finance_statistics):
-    prune_trend_df['mean_plus_std'] = trend_statistics.mean_plus_std
-    prune_trend_df['mean_minus_std'] = trend_statistics.mean_minus_std
-    prune_trend_df['mean'] = trend_statistics.mean
+# Pintamos un histograma donde el ejeX muestre las marcas de los valores normalizados de la serie TRENDS y el ejeY
+# represente la frecuencia de valores "1" de la serie BINARIZADA COTIZACIONES.
+# Si veremos un histograma en forma de curva, donde existirán más valores "1" en el extremo del histograma
+def metricas_metodo3(prune_trend_df, prune_finance_df, trend_statistics, finance_statistics, context=''):
+    prune_trend_df_copy = prune_trend_df.copy()
+    prune_finance_df_copy = prune_finance_df.copy()
+
+    prune_trend_df_copy['mean_plus_std'] = trend_statistics.mean_plus_std
+    prune_trend_df_copy['mean_minus_std'] = trend_statistics.mean_minus_std
+    prune_trend_df_copy['mean'] = trend_statistics.mean
     x_arr = ['date', 'date', 'date', 'date', 'date']
     y_arr = ['binary_' + trend_statistics.context, 'mean_plus_std', 'mean_minus_std', 'mean', 'value']
     color_arr = ['blue', 'green', 'green', 'green', 'purple']
-    UTILS.create_plot_from_df(prune_trend_df, x_arr, y_arr, color_arr, 'prune_trend_df')
+    Utils.create_plot_from_df(prune_trend_df_copy, x_arr, y_arr, color_arr, context + '_prune_trend_df')
 
-    prune_finance_df['mean_plus_std'] = finance_statistics.mean_plus_std
-    prune_finance_df['mean_minus_std'] = finance_statistics.mean_minus_std
-    prune_finance_df['mean'] = finance_statistics.mean
+    prune_finance_df_copy['mean_plus_std'] = finance_statistics.mean_plus_std
+    prune_finance_df_copy['mean_minus_std'] = finance_statistics.mean_minus_std
+    prune_finance_df_copy['mean'] = finance_statistics.mean
     x_arr = ['date', 'date', 'date', 'date']
     y_arr = ['mean_plus_std', 'mean_minus_std', 'mean', 'returns']
     color_arr = ['green', 'green', 'green', 'purple']
-    UTILS.create_plot_from_df(prune_finance_df.iloc[1:], x_arr, y_arr, color_arr, 'prune_finance_df')
+
+    Utils.create_plot_from_df(prune_finance_df_copy.iloc[1:], x_arr, y_arr, color_arr, context + '_prune_finance_df')
 
 
 # MÉTODO 4:
@@ -141,7 +146,7 @@ def metricas_metodo4(y_pred, y_true):
 ##################################
 # Objetivo: evaluar el valor predictivo de la serie
 ##################################
-def generate_metrics(prune_trend_df, prune_finance_df, trend_statistics, finance_statistics):
+def generate_metrics(prune_trend_df, prune_finance_df, trend_statistics, finance_statistics, context=''):
     binary_trend_arr = np.array(prune_trend_df['binary_' + trend_statistics.context])
     binary_finance_arr = np.array(prune_finance_df['binary_' + finance_statistics.context])
     # Se quiere predecir el futuro inmediato por tanto se corre la binaria de finance
@@ -167,7 +172,7 @@ def generate_metrics(prune_trend_df, prune_finance_df, trend_statistics, finance
     metodo1_res = list(metricas_metodo1(y_pred, y_true))
     metodo2_res = metricas_metodo2(np.array(prune_trend_df['norm_trend']),
                                    np.array(prune_finance_df['norm_finance']))
-    metricas_metodo3(prune_trend_df, prune_finance_df, trend_statistics, finance_statistics)
+    metricas_metodo3(prune_trend_df, prune_finance_df, trend_statistics, finance_statistics, context)
     matriz_confusion_df, pred_df, fisher_df = list(metricas_metodo4(y_pred, y_true))
 
     metodo1_results_df = pd.DataFrame([
@@ -183,7 +188,8 @@ def generate_metrics(prune_trend_df, prune_finance_df, trend_statistics, finance
 
 def report_final(response_trend_df, response_finance_df,
                  prune_trend_df, prune_finance_df,
-                 trend_statistics, finance_statistics):
+                 trend_statistics, finance_statistics,
+                 context=''):
 
     prune_trend_df = prune_trend_df.sort_values(by='date')
     prune_finance_df = prune_finance_df.sort_values(by='date')
@@ -199,15 +205,15 @@ def report_final(response_trend_df, response_finance_df,
       columns=['', 'mean', 'std'])
 
     metrics_ = list(generate_metrics(prune_trend_df,prune_finance_df,
-                                     trend_statistics, finance_statistics))
+                                     trend_statistics, finance_statistics, context))
     metrics_.append(statistic_df)
 
-    writer = pd.ExcelWriter('resultados' + CONSTANTS.EXTENSION_EXCEL, engine='openpyxl')
+    writer = pd.ExcelWriter(CONSTANTS.results_path + context + '_resultados' + CONSTANTS.EXTENSION_EXCEL, engine='openpyxl')
     prune_trend_df.to_excel(writer, 'poda_trend', index=False)
     prune_finance_df.to_excel(writer, 'poda_finance', index=False)
 
     # UTILS.multiple_dfs([metrics_[0], metrics_[1], statistic_df], 'pred_eval', writer, 1)
-    UTILS.multiple_dfs(metrics_, 'evaluacion_prediccion', writer, 1)
+    Utils.multiple_dfs(metrics_, 'evaluacion_prediccion', writer, 1)
 
     response_trend_df.to_excel(writer, 'google_trends_ori', index=False)
     response_finance_df.to_excel(writer, 'yahoo_finance_ori', index=False)

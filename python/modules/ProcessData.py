@@ -32,11 +32,8 @@ def merge_binary_time_series(left_df, right_df, date_column_name):
 def calculate_return(data_array: np.array):
     arr = np.zeros_like(data_array)
     for idx in range(data_array.shape[0]):
-        if idx != 0:
-            if data_array[idx - 1] != 0:
-                arr[idx] = float(data_array[idx] / data_array[idx - 1])
-            else:
-                arr[idx] = 0
+        arr[idx] = float(data_array[idx] / data_array[idx - 1]) - 1 if data_array[idx - 1] != 0 and idx != 0 else 0
+
     return arr
 
 
@@ -67,6 +64,7 @@ def prune_row_correspondance_by_value(left_df, right_df,
     left_df = left_df.loc[left_df[column_name] != value]
     left_df = left_df.reset_index(drop=True)
     return left_df, right_df
+
 
 class ProcessData:
 

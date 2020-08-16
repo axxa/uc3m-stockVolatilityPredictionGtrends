@@ -27,16 +27,22 @@ class GetDataFromAPI:
     def request_transform_trend_data(self, start_date, end_date) -> pd.core.frame.DataFrame:
         response_json = self.request_service(CONSTANTS.googleTrendsAPIMethodURL + self.trend_word + '/' +
                                              start_date + '/' + end_date)
-        response_df = pd.DataFrame(response_json['gtrendsdata'])\
-            .drop(['formattedTime', 'formattedAxisTime', 'formattedValue', 'hasData', 'symbol'], axis=1)
-        response_df['time'] = response_df['time'].apply(self.format_date_fromtimestamp)
-        response_df = response_df.rename(columns={"time": "date"}, errors="raise")
+        if len(response_json['gtrendsdata']) > 0:
+            response_df = pd.DataFrame(response_json['gtrendsdata'])\
+                .drop(['formattedTime', 'formattedAxisTime', 'formattedValue', 'hasData', 'symbol'], axis=1)
+            response_df['time'] = response_df['time'].apply(self.format_date_fromtimestamp)
+            response_df = response_df.rename(columns={"time": "date"}, errors="raise")
+        else:
+            response_df = None
         return response_df
 
     def request_transform_finance_data(self, start_date, end_date):
         response_json = self.request_service(CONSTANTS.yahooFinanceAPIMethodURL + self.stock + '/' +
                                              start_date + '/' + end_date)
-        response_df = pd.DataFrame(response_json['stockdata'])\
-            .drop(['symbol', 'open', 'close', 'volume', 'low', 'high'], axis=1)
-        response_df['date'] = response_df['date'].apply(self.format_date_string)
+        if len(response_json['stockdata']) > 0:
+            response_df = pd.DataFrame(response_json['stockdata'])\
+                .drop(['symbol', 'open', 'close', 'volume', 'low', 'high'], axis=1)
+            response_df['date'] = response_df['date'].apply(self.format_date_string)
+        else:
+            response_df = None
         return response_df

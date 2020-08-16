@@ -2,6 +2,8 @@ from datetime import datetime
 from datetime import timedelta
 import matplotlib.pyplot as plt
 
+from constants.CONSTANTS import CONSTANTS
+
 def check_date_range_by_days(start: str, end: str):
     start = datetime.strptime(start, "%Y-%m-%d")
     end = datetime.strptime(end, "%Y-%m-%d")
@@ -38,5 +40,5 @@ def create_plot_from_df(df, x_arr, y_arr, color_arr, plot_name):
     for idx, value in enumerate(x_arr):
         df.plot(kind='line', color=color_arr[idx], x=value, y=y_arr[idx], ax=ax)
 
-    plt.savefig(str(plot_name) + '.png')
+    plt.savefig(CONSTANTS.results_path + str(plot_name) + '.png')
     plt.clf()

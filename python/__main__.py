@@ -4,9 +4,40 @@ import numpy as np
 from modules.GetDataFromAPI import GetDataFromAPI
 import modules.ProcessData as prd
 import modules.AnalisysData as mad
-import modules.Utils as UTILS
+import modules.Utils as Utils
 from constants.CONSTANTS import CONSTANTS
 
+
+def execute(key, value, start_date, end_date):
+    stock = key
+    trend_word = value
+    getDataFromAPI = GetDataFromAPI(trend_word, stock)
+    if Utils.check_date_range_by_days(start_date, end_date) > 180:
+      range_date_arr = list(Utils.get_range_dates_by_chunks(start_date, end_date, 180))
+      df = pd.DataFrame()
+      response_trend_df = pd.DataFrame()
+      response_finance_df = pd.DataFrame()
+      for tuple_ in range_date_arr:
+        response_ = extract_data(getDataFromAPI, tuple_[0], tuple_[1])
+        response_trend_df = response_trend_df.append(response_[0])
+        response_finance_df = response_finance_df.append(response_[1])
+
+    else:
+      response_ = extract_data(getDataFromAPI, start_date, end_date)
+      response_trend_df = response_[0]
+      response_finance_df = response_[1]
+
+    if response_trend_df.size > 0 and response_finance_df.size > 0:
+      prune_trend_df, prune_finance_df, \
+      trend_statistics, finance_statistics, \
+      returns_array = process_data(response_trend_df, response_finance_df)
+
+      mad.report_final(response_trend_df, response_finance_df,
+                       prune_trend_df, prune_finance_df,
+                       trend_statistics, finance_statistics, stock)
+    else:
+      print(f'Data not found for stock {trend_word} between {start_date} and {end_date} '
+            f'trend={response_trend_df.size} finance={response_finance_df.size}')
 
 def extract_data(getDataFromAPI: GetDataFromAPI, start_date, end_date):
     response_trend_df = getDataFromAPI.request_transform_trend_data(start_date, end_date)
@@ -14,7 +45,7 @@ def extract_data(getDataFromAPI: GetDataFromAPI, start_date, end_date):
     return response_trend_df, response_finance_df
 
 
-def process_data(response_trend_df, response_finance_df):
+def process_data(response_trend_df: pd.DataFrame(), response_finance_df: pd.DataFrame()):
     # Se podan los  todos los sábados (de todas las series) y domingos (de las series finance).
     # Para esto construye series con los datos de L-V para finance y Domingo-Jueves para trends.
     df = prd.merge_binary_time_series(response_trend_df, response_finance_df, 'date')
@@ -63,32 +94,8 @@ def process_data(response_trend_df, response_finance_df):
 
 
 if __name__ == '__main__':
-    start_date = '2012-01-01'
-    end_date = '2012-12-31'
-    # print('empieza proceso: ' + datetime.now().strftime("%Y-%m-%d %I:%M:%S %p"))
-    # CASE 1 : BBVA ------------------------------------------------------------
-    getDataFromAPI = GetDataFromAPI('BBVA', 'BBVA')
-    if UTILS.check_date_range_by_days(start_date, end_date) > 180:
-        # print(f'{UTILS.check_date_range_by_days(start_date, end_date)} dias')
-        range_date_arr = list(UTILS.get_range_dates_by_chunks(start_date, end_date, 180))
-        df = pd.DataFrame()
-        response_trend_df = pd.DataFrame()
-        response_finance_df = pd.DataFrame()
-        for tuple_ in range_date_arr:
-            response_ = extract_data(getDataFromAPI, tuple_[0], tuple_[1])
-            response_trend_df = response_trend_df.append(response_[0])
-            response_finance_df = response_finance_df.append(response_[1])
+    start_date = CONSTANTS.start_date
+    end_date = CONSTANTS.end_date
 
-    else:
-        response_ = extract_data(getDataFromAPI, start_date, end_date)
-        response_trend_df = response_[0]
-        response_finance_df = response_[1]
-
-    prune_trend_df, prune_finance_df, \
-    trend_statistics, finance_statistics, \
-    returns_array = process_data(response_trend_df, response_finance_df)
-
-    mad.report_final(response_trend_df, response_finance_df,
-                     prune_trend_df, prune_finance_df,
-                     trend_statistics, finance_statistics)
-    # print('termina proceso: ' + datetime.now().strftime("%Y-%m-%d %I:%M:%S %p"))
+    for key, value in CONSTANTS.IBEX_STOCK_LIBRARY.items():
+        execute(key, value, start_date, end_date)
