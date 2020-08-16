@@ -14,3 +14,6 @@ Angular generate component
   ng g c <name without component posfix>
 
 
+
+http://localhost:3000/volatilitypred/extractFinance/SGRE.MC/2020-04-11/2020-04-28
+http://localhost:3000/volatilitypred/extractTrends/Acciona S.A/2011-01-01/2011-12-31
