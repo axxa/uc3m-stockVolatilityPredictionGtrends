@@ -9,6 +9,7 @@ import openpyxl
 
 import modules.Utils as Utils
 from constants.CONSTANTS import CONSTANTS
+from modules.ProcessData import fit_df_series
 '''
 Matriz de confusion
                | Positive Prediction | Negative Prediction
@@ -92,7 +93,9 @@ def metricas_metodo3(prune_trend_df, prune_finance_df, trend_statistics, finance
 # Calculamos la matriz de confusión.
 # Calculamos la "prueba exacta de Fisher" sobre la matriz de confusión.
 def metricas_metodo4(y_pred, y_true):
-    tn, fp, fn, tp = skl.confusion_matrix(y_true, y_pred).ravel()
+
+    tn, fp, fn, tp = skl.confusion_matrix(y_true, y_pred, labels=[0, 1]).ravel()
+
     if (tp + fn) == 0:
         sensitivity = 0
     else:
@@ -147,17 +150,11 @@ def metricas_metodo4(y_pred, y_true):
 # Objetivo: evaluar el valor predictivo de la serie
 ##################################
 def generate_metrics(prune_trend_df, prune_finance_df, trend_statistics, finance_statistics, context=''):
-    binary_trend_arr = np.array(prune_trend_df['binary_' + trend_statistics.context])
-    binary_finance_arr = np.array(prune_finance_df['binary_' + finance_statistics.context])
-    # Se quiere predecir el futuro inmediato por tanto se corre la binaria de finance
-    # una posicion y se acorta la binaria de tendencias una posicion
 
-    if (prune_trend_df['date'].iloc[0] - prune_finance_df['date'].iloc[0]).days == 0:
-        y_true = binary_finance_arr[1:]
-        y_pred = binary_trend_arr[:-1]
-    else:
-        y_true = binary_finance_arr
-        y_pred = binary_trend_arr
+    prune_trend_df, prune_finance_df = fit_df_series(prune_finance_df, prune_trend_df)
+
+    y_pred = np.array(prune_trend_df['binary_' + trend_statistics.context])
+    y_true = np.array(prune_finance_df['binary_' + finance_statistics.context])
 
     trend_cero_count = np.count_nonzero(y_pred == 0)
     trend_uno_count = np.count_nonzero(y_pred == 1)
@@ -180,8 +177,7 @@ def generate_metrics(prune_trend_df, prune_finance_df, trend_statistics, finance
       ['recall', metodo1_res[2], metodo1_res[3]],
       ['f1', metodo1_res[4], metodo1_res[5]]],
       columns=['sklearn.metrics', 'binary', 'weighted'])
-    metodo2_results_df = pd.DataFrame([[metodo2_res]],
-      columns=['covarianza_normalizadas'])
+    metodo2_results_df = pd.DataFrame([[metodo2_res]], columns=['covarianza_normalizadas'])
 
     return matriz_confusion_df, pred_df, fisher_df, pred3_df, metodo1_results_df, metodo2_results_df
 
@@ -190,34 +186,35 @@ def report_final(response_trend_df, response_finance_df,
                  prune_trend_df, prune_finance_df,
                  trend_statistics, finance_statistics,
                  context=''):
+    if len(response_trend_df) > 0 and len(response_finance_df) > 0 \
+      and len(prune_trend_df) > 0 and len(prune_finance_df) > 0:
+        prune_trend_df = prune_trend_df.sort_values(by='date')
+        prune_finance_df = prune_finance_df.sort_values(by='date')
 
-    prune_trend_df = prune_trend_df.sort_values(by='date')
-    prune_finance_df = prune_finance_df.sort_values(by='date')
+        prune_trend_df = prune_trend_df.reset_index(drop=True)
+        prune_finance_df = prune_finance_df.reset_index(drop=True)
 
-    prune_trend_df = prune_trend_df.reset_index(drop=True)
-    prune_finance_df = prune_finance_df.reset_index(drop=True)
-    #if 'index' in prune_trend_df.columns: prune_trend_df = prune_trend_df.drop(['index'], axis=1)
-    #if 'axisNote' in prune_trend_df.columns: prune_trend_df = prune_trend_df.drop(['axisNote'], axis=1)
+        statistic_df = pd.DataFrame([
+          ['finance', finance_statistics.mean, finance_statistics.std],
+          ['trend', trend_statistics.mean, trend_statistics.std]],
+          columns=['', 'mean', 'std'])
 
-    statistic_df = pd.DataFrame([
-      ['finance', finance_statistics.mean, finance_statistics.std],
-      ['trend', trend_statistics.mean, trend_statistics.std]],
-      columns=['', 'mean', 'std'])
+        metrics_ = list(generate_metrics(prune_trend_df,prune_finance_df,
+                                         trend_statistics, finance_statistics, context))
+        metrics_.append(statistic_df)
 
-    metrics_ = list(generate_metrics(prune_trend_df,prune_finance_df,
-                                     trend_statistics, finance_statistics, context))
-    metrics_.append(statistic_df)
+        writer = pd.ExcelWriter(CONSTANTS.results_path + context +
+                                CONSTANTS.start_date + '_' + CONSTANTS.end_date +
+                                CONSTANTS.EXTENSION_EXCEL, engine='openpyxl')
+        prune_trend_df.to_excel(writer, 'poda_trend', index=False)
+        prune_finance_df.to_excel(writer, 'poda_finance', index=False)
 
-    writer = pd.ExcelWriter(CONSTANTS.results_path + context + '_resultados' + CONSTANTS.EXTENSION_EXCEL, engine='openpyxl')
-    prune_trend_df.to_excel(writer, 'poda_trend', index=False)
-    prune_finance_df.to_excel(writer, 'poda_finance', index=False)
+        # UTILS.multiple_dfs([metrics_[0], metrics_[1], statistic_df], 'pred_eval', writer, 1)
+        Utils.multiple_dfs(metrics_, 'evaluacion_prediccion', writer, 1)
 
-    # UTILS.multiple_dfs([metrics_[0], metrics_[1], statistic_df], 'pred_eval', writer, 1)
-    Utils.multiple_dfs(metrics_, 'evaluacion_prediccion', writer, 1)
+        response_trend_df.to_excel(writer, 'google_trends_ori', index=False)
+        response_finance_df.to_excel(writer, 'yahoo_finance_ori', index=False)
 
-    response_trend_df.to_excel(writer, 'google_trends_ori', index=False)
-    response_finance_df.to_excel(writer, 'yahoo_finance_ori', index=False)
-
-    writer.save()
-    writer.close()
+        writer.save()
+        writer.close()
 

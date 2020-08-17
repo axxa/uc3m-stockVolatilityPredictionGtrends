@@ -6,23 +6,38 @@ from datetime import timedelta
 
 
 def fit_trend_binary_series(trend_df, finance_df):
-  #  Obtener fechas mas proximas de las binarias
-  min_true_date = finance_df.date.min()
-  max_true_date = finance_df.date.max()
-  aux = 10
-  aux2 = 10
-  for x in trend_df['date']:
-    if 0 < (min_true_date - x).days < aux:
-      aux = (min_true_date - x).days
-      earliest_trend_date = x
-    if 0 < (max_true_date - x).days < aux2:
-      aux2 = (max_true_date - x).days
-      oldest_trend_date = x
+    #  Obtener fechas mas proximas de las binarias
+    min_true_date = finance_df.date.min()
+    max_true_date = finance_df.date.max()
+    earliest_trend_date = min_true_date
+    aux = 10
+    aux2 = 10
+    for x in trend_df['date']:
+        if 0 < (min_true_date - x).days < aux:
+          aux = (min_true_date - x).days
+          earliest_trend_date = x
+        if 0 < (max_true_date - x).days < aux2:
+          aux2 = (max_true_date - x).days
+          oldest_trend_date = x
 
-  mask = (trend_df['date'] >= earliest_trend_date) & (trend_df['date'] <= oldest_trend_date)
-  trend_df = trend_df.loc[mask]
+    mask = (trend_df['date'] >= earliest_trend_date) & (trend_df['date'] <= oldest_trend_date)
+    trend_df = trend_df.loc[mask]
 
-  return trend_df
+    return trend_df
+
+
+def fit_df_series(predecido_df, predictor_df):
+    """Se quiere predecir el futuro inmediato por tanto se corre la binaria de finance
+    una posicion y/o se acorta la binaria de tendencias una posicion"""
+    if predictor_df['date'].iloc[0] == predecido_df['date'].iloc[0] \
+      or predictor_df['date'].iloc[0] > predecido_df['date'].iloc[0]:
+        predecido_df = predecido_df.iloc[1:]
+    if predictor_df.shape[0] > predecido_df.shape[0]:
+        predictor_df = predictor_df.iloc[:-1]
+    elif predictor_df.shape[0] < predecido_df.shape[0]:
+        predecido_df = predecido_df.iloc[:-1]
+
+    return predictor_df, predecido_df
 
 
 def merge_binary_time_series(left_df, right_df, date_column_name):
@@ -74,9 +89,9 @@ class ProcessData:
         self.mean: float = 0
         self.mean_plus_std: float = 0
         self.mean_minus_std: float = 0
-        self.binary_serie_df: pd.DataFrame()
-        self.normalized_: np.array
-        self.normalized_df: pd.DataFrame()
+        self.binary_serie_df: pd.DataFrame() = None
+        self.normalized_: np.array = None
+        self.normalized_df: pd.DataFrame() = None
         self.discard_first = discard_first
 
     def generate_statistic_data(self, data_array: np.array):
@@ -110,10 +125,14 @@ class ProcessData:
         # self.norm_binary_serie_df = pd.DataFrame(binary_serie, columns=["norm_binary_" + self.context])
 
     def normalize(self, data_array: np.array):
-        f = lambda x: (x - self.mean) / self.std
-        self.normalized_ = f(data_array)
+        if self.std != 0:
+            f = lambda x: 0 if self.std == 0 else (x - self.mean) / self.std
+            self.normalized_ = f(data_array)
+        else:
+            self.normalized_ = data_array
+
         if self.discard_first:
-          self.normalized_[0] = 0
+            self.normalized_[0] = 0
         self.normalized_df = pd.DataFrame(self.normalized_, columns=['norm_' + self.context])
 
 
