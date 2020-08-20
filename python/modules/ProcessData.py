@@ -10,6 +10,7 @@ def fit_trend_binary_series(trend_df, finance_df):
     min_true_date = finance_df.date.min()
     max_true_date = finance_df.date.max()
     earliest_trend_date = min_true_date
+    # oldest_trend_date = max_true_date
     aux = 10
     aux2 = 10
     for x in trend_df['date']:
@@ -20,8 +21,12 @@ def fit_trend_binary_series(trend_df, finance_df):
           aux2 = (max_true_date - x).days
           oldest_trend_date = x
 
-    mask = (trend_df['date'] >= earliest_trend_date) & (trend_df['date'] <= oldest_trend_date)
-    trend_df = trend_df.loc[mask]
+    try:
+        mask = (trend_df['date'] >= earliest_trend_date) & (trend_df['date'] <= oldest_trend_date)
+        trend_df = trend_df.loc[mask]
+    except Exception as e:
+        print(e)
+        raise e
 
     return trend_df
 

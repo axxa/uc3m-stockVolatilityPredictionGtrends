@@ -34,11 +34,11 @@ def multiple_dfs(df_list, sheets, writer, spaces):
     row = row + len(dataframe.index) + spaces + 1
 
 
-def create_plot_from_df(df, x_arr, y_arr, color_arr, plot_name):
+def create_plot_from_df(df, x_arr, y_arr, color_arr, plot_name, path):
     # gca stands for 'get current axis'
     ax = plt.gca()
     for idx, value in enumerate(x_arr):
         df.plot(kind='line', color=color_arr[idx], x=value, y=y_arr[idx], ax=ax)
 
-    plt.savefig(CONSTANTS.results_path + str(plot_name) + '.png')
+    plt.savefig(path + str(plot_name) + '.png')
     plt.clf()

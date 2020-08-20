@@ -10,6 +10,7 @@ import openpyxl
 import modules.Utils as Utils
 from constants.CONSTANTS import CONSTANTS
 from modules.ProcessData import fit_df_series
+from modules.global_results import GlobalResults
 '''
 Matriz de confusion
                | Positive Prediction | Negative Prediction
@@ -71,22 +72,24 @@ def metricas_metodo3(prune_trend_df, prune_finance_df, trend_statistics, finance
     prune_trend_df_copy = prune_trend_df.copy()
     prune_finance_df_copy = prune_finance_df.copy()
 
-    prune_trend_df_copy['mean_plus_std'] = trend_statistics.mean_plus_std
-    prune_trend_df_copy['mean_minus_std'] = trend_statistics.mean_minus_std
+    prune_trend_df_copy['sigma+'] = trend_statistics.mean_plus_std
+    prune_trend_df_copy['sigma-'] = trend_statistics.mean_minus_std
     prune_trend_df_copy['mean'] = trend_statistics.mean
-    x_arr = ['date', 'date', 'date', 'date', 'date']
-    y_arr = ['binary_' + trend_statistics.context, 'mean_plus_std', 'mean_minus_std', 'mean', 'value']
-    color_arr = ['blue', 'green', 'green', 'green', 'purple']
-    Utils.create_plot_from_df(prune_trend_df_copy, x_arr, y_arr, color_arr, context + '_prune_trend_df')
+    x_arr = ['date', 'date', 'date', 'date']
+    y_arr = ['sigma+', 'sigma-', 'mean', 'value']
+    color_arr = ['red', 'red', 'green', 'purple']
+    Utils.create_plot_from_df(prune_trend_df_copy, x_arr, y_arr, color_arr, context + '_trend_df',
+                              CONSTANTS.RESULTS_PATH)
 
-    prune_finance_df_copy['mean_plus_std'] = finance_statistics.mean_plus_std
-    prune_finance_df_copy['mean_minus_std'] = finance_statistics.mean_minus_std
+    prune_finance_df_copy['sigma+'] = finance_statistics.mean_plus_std
+    prune_finance_df_copy['sigma-'] = finance_statistics.mean_minus_std
     prune_finance_df_copy['mean'] = finance_statistics.mean
     x_arr = ['date', 'date', 'date', 'date']
-    y_arr = ['mean_plus_std', 'mean_minus_std', 'mean', 'returns']
-    color_arr = ['green', 'green', 'green', 'purple']
+    y_arr = ['sigma+', 'sigma-', 'mean', 'returns']
+    color_arr = ['red', 'red', 'green', 'purple']
 
-    Utils.create_plot_from_df(prune_finance_df_copy.iloc[1:], x_arr, y_arr, color_arr, context + '_prune_finance_df')
+    Utils.create_plot_from_df(prune_finance_df_copy.iloc[1:], x_arr, y_arr, color_arr,
+                              context + '_finance_df', CONSTANTS.RESULTS_PATH)
 
 
 # MÉTODO 4:
@@ -105,7 +108,7 @@ def metricas_metodo4(y_pred, y_true):
     else:
         specificity = tp / (fp + tn)
     g_mean = math.sqrt(sensitivity * specificity)
-    accuracy = (tp + tn) / (tn + fp + fn + tp)
+    # accuracy = (tp + tn) / (tn + fp + fn + tp)
 
     if (tp + fp) == 0:
         precision = 0
@@ -120,13 +123,13 @@ def metricas_metodo4(y_pred, y_true):
         f1 = 0
     else:
         f1 = 2 * (precision * recall) / (precision + recall)
-
+    """
     true_positive_rate = sensitivity
     if (fp + tn) == 0:
         false_positive_rate = 0
     else:
         false_positive_rate = fp / (fp + tn)
-
+    """
     # pred_df = pd.DataFrame([[accuracy, precision, recall]], columns=['accuracy', 'precision', 'recall'])
 
     pred2_df = pd.DataFrame([[sensitivity, specificity, g_mean, f1]],
@@ -163,8 +166,8 @@ def generate_metrics(prune_trend_df, prune_finance_df, trend_statistics, finance
 
     pred3_df = pd.DataFrame([[trend_cero_count, trend_uno_count,
                              finance_cero_count, finance_uno_count]],
-                            columns=['trend_ceros', 'trend_unos',
-                                     'finance_ceros', 'finance_unos'])
+                            columns=[CONSTANTS.trend_ceros, CONSTANTS.trend_unos,
+                                     CONSTANTS.finance_ceros, CONSTANTS.finance_unos])
 
     metodo1_res = list(metricas_metodo1(y_pred, y_true))
     metodo2_res = metricas_metodo2(np.array(prune_trend_df['norm_trend']),
@@ -173,11 +176,11 @@ def generate_metrics(prune_trend_df, prune_finance_df, trend_statistics, finance
     matriz_confusion_df, pred_df, fisher_df = list(metricas_metodo4(y_pred, y_true))
 
     metodo1_results_df = pd.DataFrame([
-      ['precision', metodo1_res[0],  metodo1_res[1]],
-      ['recall', metodo1_res[2], metodo1_res[3]],
-      ['f1', metodo1_res[4], metodo1_res[5]]],
-      columns=['sklearn.metrics', 'binary', 'weighted'])
-    metodo2_results_df = pd.DataFrame([[metodo2_res]], columns=['covarianza_normalizadas'])
+      [CONSTANTS.precision, metodo1_res[0],  metodo1_res[1]],
+      [CONSTANTS.recall, metodo1_res[2], metodo1_res[3]],
+      [CONSTANTS.f1, metodo1_res[4], metodo1_res[5]]],
+      columns=[CONSTANTS.sklearn_metrics, CONSTANTS.binary, CONSTANTS.weighted])
+    metodo2_results_df = pd.DataFrame([[metodo2_res]], columns=[CONSTANTS.covarianza_normalizadas])
 
     return matriz_confusion_df, pred_df, fisher_df, pred3_df, metodo1_results_df, metodo2_results_df
 
@@ -199,11 +202,11 @@ def report_final(response_trend_df, response_finance_df,
           ['trend', trend_statistics.mean, trend_statistics.std]],
           columns=['', 'mean', 'std'])
 
-        metrics_ = list(generate_metrics(prune_trend_df,prune_finance_df,
+        metrics_ = list(generate_metrics(prune_trend_df, prune_finance_df,
                                          trend_statistics, finance_statistics, context))
         metrics_.append(statistic_df)
 
-        writer = pd.ExcelWriter(CONSTANTS.results_path + context +
+        writer = pd.ExcelWriter(CONSTANTS.RESULTS_PATH + context + '__' +
                                 CONSTANTS.start_date + '_' + CONSTANTS.end_date +
                                 CONSTANTS.EXTENSION_EXCEL, engine='openpyxl')
         prune_trend_df.to_excel(writer, 'poda_trend', index=False)
@@ -218,3 +221,179 @@ def report_final(response_trend_df, response_finance_df,
         writer.save()
         writer.close()
 
+        set_global_results(prune_trend_df, prune_finance_df, metrics_, context)
+
+
+def set_global_results(prune_trend_df, prune_finance_df, metrics_, context):
+    # metrics_[] : matriz_confusion_df, pred_df, fisher_df, pred3_df, metodo1_results_df, metodo2_results_df
+
+    # Richest data set
+    data_stock = prune_trend_df.shape[0] + prune_finance_df.shape[0]
+    if data_stock > GlobalResults.richest_data_stock.single_value:
+        GlobalResults.richest_data_stock.stock = context
+        GlobalResults.richest_data_stock.single_value = data_stock
+    elif data_stock < GlobalResults.poorest_data_stock.single_value:
+        GlobalResults.poorest_data_stock.stock = context
+        GlobalResults.poorest_data_stock.single_value = data_stock
+
+    # Best precision
+    precision_binary = metrics_[4][CONSTANTS.binary].iloc[0]
+    precision_weighted = metrics_[4][CONSTANTS.weighted].iloc[0]
+    if precision_binary > GlobalResults.best_precision_binary.single_value:
+        GlobalResults.best_precision_binary.stock = context
+        GlobalResults.best_precision_binary.single_value = precision_binary
+    elif precision_binary < GlobalResults.worst_precision_binary.single_value:
+        GlobalResults.worst_precision_binary.stock = context
+        GlobalResults.worst_precision_binary.single_value = precision_binary
+    if precision_weighted > GlobalResults.best_precision_weighted.single_value:
+        GlobalResults.best_precision_weighted.stock = context
+        GlobalResults.best_precision_weighted.single_value = precision_weighted
+    elif precision_weighted < GlobalResults.worst_precision_weighted.single_value:
+        GlobalResults.worst_precision_weighted.stock = context
+        GlobalResults.worst_precision_weighted.single_value = precision_weighted
+    # ---------------------------------------------------------------------------
+    # Best recall
+    recall_binary = metrics_[4][CONSTANTS.binary].iloc[1]
+    recall_weighted = metrics_[4][CONSTANTS.weighted].iloc[1]
+    if recall_binary > GlobalResults.best_recall_binary.single_value:
+        GlobalResults.best_recall_binary.stock = context
+        GlobalResults.best_recall_binary.single_value = recall_binary
+    elif recall_binary < GlobalResults.worst_recall_binary.single_value:
+        GlobalResults.worst_recall_binary.stock = context
+        GlobalResults.worst_recall_binary.single_value = recall_binary
+    if recall_weighted > GlobalResults.best_recall_weighted.single_value:
+        GlobalResults.best_recall_weighted.stock = context
+        GlobalResults.best_recall_weighted.single_value = recall_weighted
+    elif recall_weighted < GlobalResults.worst_recall_weighted.single_value:
+        GlobalResults.worst_recall_weighted.stock = context
+        GlobalResults.worst_recall_weighted.single_value = recall_weighted
+    # --------------------------------------------------------------------------
+    # most balanced binary trend
+    trend_ceros = metrics_[3][CONSTANTS.trend_ceros].iloc[0]
+    trend_unos = metrics_[3][CONSTANTS.trend_unos].iloc[0]
+
+    if abs(GlobalResults.most_balanced_binary_trend.single_value - 1) > abs((trend_unos / trend_ceros) - 1):
+        GlobalResults.most_balanced_binary_trend.stock = context
+        GlobalResults.most_balanced_binary_trend.single_value = trend_unos / trend_ceros
+        GlobalResults.most_balanced_binary_trend.values = {CONSTANTS.trend_ceros: trend_ceros,
+                                                           CONSTANTS.trend_unos: trend_unos,
+                                                           CONSTANTS.precision + '_' +
+                                                           CONSTANTS.binary: metrics_[4][CONSTANTS.binary].iloc[0],
+                                                           CONSTANTS.precision + '_' +
+                                                           CONSTANTS.weighted: metrics_[4][CONSTANTS.weighted].iloc[0],
+
+                                                           CONSTANTS.recall + '_' +
+                                                           CONSTANTS.binary: metrics_[4][CONSTANTS.binary].iloc[1],
+                                                           CONSTANTS.recall + '_' +
+                                                           CONSTANTS.weighted: metrics_[4][CONSTANTS.weighted].iloc[1],
+                                                           }
+
+    elif abs(GlobalResults.less_balanced_binary_trend.single_value - 1) < abs((trend_unos / trend_ceros) - 1):
+        GlobalResults.less_balanced_binary_trend.stock = context
+        GlobalResults.less_balanced_binary_trend.single_value = trend_unos / trend_ceros
+        GlobalResults.less_balanced_binary_trend.values = {CONSTANTS.trend_ceros: trend_ceros,
+                                                           CONSTANTS.trend_unos: trend_unos,
+                                                           CONSTANTS.precision + '_' +
+                                                           CONSTANTS.binary: metrics_[4][CONSTANTS.binary].iloc[0],
+                                                           CONSTANTS.precision + '_' +
+                                                           CONSTANTS.weighted: metrics_[4][CONSTANTS.weighted].iloc[0],
+
+                                                           CONSTANTS.recall + '_' +
+                                                           CONSTANTS.binary: metrics_[4][CONSTANTS.binary].iloc[1],
+                                                           CONSTANTS.recall + '_' +
+                                                           CONSTANTS.weighted: metrics_[4][CONSTANTS.weighted].iloc[1],
+                                                           }
+    # most balanced binary finance
+    finance_ceros = metrics_[3][CONSTANTS.finance_ceros].iloc[0]
+    finance_unos = metrics_[3][CONSTANTS.finance_unos].iloc[0]
+
+    if abs(GlobalResults.most_balanced_binary_finance.single_value - 1) > abs((finance_unos / finance_ceros) - 1):
+        GlobalResults.most_balanced_binary_finance.stock = context
+        GlobalResults.most_balanced_binary_finance.single_value = finance_unos / finance_ceros
+        GlobalResults.most_balanced_binary_finance.values = {CONSTANTS.finance_ceros: finance_ceros,
+                                                             CONSTANTS.finance_unos: finance_unos,
+                                                             CONSTANTS.precision + '_' +
+                                                             CONSTANTS.binary: metrics_[4][CONSTANTS.binary].iloc[0],
+                                                             CONSTANTS.precision + '_' +
+                                                             CONSTANTS.weighted: metrics_[4][CONSTANTS.weighted].iloc[0],
+
+                                                             CONSTANTS.recall + '_' +
+                                                             CONSTANTS.binary: metrics_[4][CONSTANTS.binary].iloc[1],
+                                                             CONSTANTS.recall + '_' +
+                                                             CONSTANTS.weighted: metrics_[4][CONSTANTS.weighted].iloc[1]
+                                                             }
+
+    elif abs(GlobalResults.less_balanced_binary_finance.single_value - 1) < abs((finance_unos / finance_ceros) - 1):
+        GlobalResults.less_balanced_binary_finance.stock = context
+        GlobalResults.less_balanced_binary_finance.single_value = finance_unos / finance_ceros
+        GlobalResults.less_balanced_binary_finance.values = {CONSTANTS.finance_ceros: finance_ceros,
+                                                             CONSTANTS.finance_unos: finance_unos,
+                                                             CONSTANTS.precision + '_' +
+                                                             CONSTANTS.binary: metrics_[4][CONSTANTS.binary].iloc[0],
+                                                             CONSTANTS.precision + '_' +
+                                                             CONSTANTS.weighted: metrics_[4][CONSTANTS.weighted].iloc[0],
+
+                                                             CONSTANTS.recall + '_' +
+                                                             CONSTANTS.binary: metrics_[4][CONSTANTS.binary].iloc[1],
+                                                             CONSTANTS.recall + '_' +
+                                                             CONSTANTS.weighted: metrics_[4][CONSTANTS.weighted].iloc[1]
+                                                             }
+
+    GlobalResults.set_size += 1
+    GlobalResults.total_precision_binary += precision_binary
+    GlobalResults.median_precision_binary = GlobalResults.total_precision_binary / GlobalResults.set_size
+    GlobalResults.total_precision_weighted += precision_weighted
+    GlobalResults.median_precision_weighted = GlobalResults.total_precision_weighted / GlobalResults.set_size
+
+    GlobalResults.total_recall_binary += recall_binary
+    GlobalResults.median_recall_binary = GlobalResults.total_recall_binary / GlobalResults.set_size
+    GlobalResults.total_recall_weighted += precision_weighted
+    GlobalResults.median_recall_weighted = GlobalResults.total_recall_weighted / GlobalResults.set_size
+
+
+def save_global_results():
+
+    df = pd.DataFrame([
+      ['richest_data_stock', GlobalResults.richest_data_stock.stock, GlobalResults.richest_data_stock.single_value],
+      ['best_precision_binary', GlobalResults.best_precision_binary.stock,
+       GlobalResults.best_precision_binary.single_value],
+      ['best_precision_weighted', GlobalResults.best_precision_weighted.stock,
+       GlobalResults.best_precision_weighted.single_value],
+      ['best_f1', GlobalResults.best_f1.stock, GlobalResults.best_f1.single_value],
+      ['best_recall_binary', GlobalResults.best_recall_binary.stock, GlobalResults.best_recall_binary.single_value],
+      ['best_recall_weighted', GlobalResults.best_recall_weighted.stock,
+       GlobalResults.best_recall_weighted.single_value],
+      ['most_balanced_binary_trend', GlobalResults.most_balanced_binary_trend.stock,
+       GlobalResults.most_balanced_binary_trend.values],
+      ['most_balanced_binary_finance', GlobalResults.most_balanced_binary_finance.stock,
+       GlobalResults.most_balanced_binary_finance.values],
+
+      ['poorest_data_stock', GlobalResults.poorest_data_stock.stock, GlobalResults.poorest_data_stock.single_value],
+      ['worst_precision_binary', GlobalResults.worst_precision_binary.stock,
+       GlobalResults.worst_precision_binary.single_value],
+      ['worst_precision_weighted', GlobalResults.worst_precision_weighted.stock,
+       GlobalResults.worst_precision_weighted.single_value],
+      ['worst_f1', GlobalResults.worst_f1.stock, GlobalResults.worst_f1.single_value],
+      ['worst_recall_binary', GlobalResults.worst_recall_binary.stock, GlobalResults.worst_recall_binary.single_value],
+      ['worst_recall_weighted', GlobalResults.worst_recall_weighted.stock,
+       GlobalResults.worst_recall_weighted.single_value],
+
+      ['median_precision_binary', '', GlobalResults.median_precision_binary],
+      ['median_precision_weighted', '', GlobalResults.median_precision_weighted],
+      ['median_recall_binary', '', GlobalResults.median_recall_binary],
+      ['median_recall_weighted', '', GlobalResults.median_recall_weighted],
+
+      ['less_balanced_binary_trend', GlobalResults.less_balanced_binary_trend.stock,
+       GlobalResults.less_balanced_binary_trend.values],
+      ['less_balanced_binary_finance', GlobalResults.less_balanced_binary_finance.stock,
+       GlobalResults.less_balanced_binary_finance.values]],
+      columns=['', 'stock', 'value'])
+
+    writer = pd.ExcelWriter(CONSTANTS.RESULTS_PATH + '__REPORT__' +
+                            CONSTANTS.start_date + '_' + CONSTANTS.end_date +
+                            CONSTANTS.EXTENSION_EXCEL, engine='openpyxl')
+
+    df.to_excel(writer, '__REPORT__', index=False)
+
+    writer.save()
+    writer.close()
