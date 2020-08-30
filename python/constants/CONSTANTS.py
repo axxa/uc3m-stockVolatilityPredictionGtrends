@@ -8,7 +8,8 @@ class CONSTANTS:
 
     EXTENSION_EXCEL = '.xlsx'
 
-    start_date = '2019-01-01'
+    start_date = '2012-01-01'
+    # start_date = '2019-12-30'
     end_date = '2019-12-31'
 
     # Column_names
@@ -25,6 +26,7 @@ class CONSTANTS:
     covarianza_normalizadas = 'covarianza_normalizadas'
     # ----------------------------------------
 
+    index_results_path = 'result_data/all_index/'
     ibex_results_path = 'result_data/ibex/'
     nasdaq_results_path = 'result_data/nasdaq/'
     sp500_results_path = 'result_data/sp500/'
@@ -43,6 +45,12 @@ class CONSTANTS:
       'BBVA.MC': 'BBVA',
     }
 
+    ALL_INDEX_LIBRARY = {
+      '^IBEX': 'IBEX',
+      '^GDAXI': 'DAX',
+      '^GSPC': 'S&P 500'
+    }
+
     IBEX_STOCK_LIBRARY = {
       'ANA.MC': 'Acciona S.A.',
       'ACX.MC': 'Acerinox',  # 'Acerinox S.A.',
@@ -51,7 +59,6 @@ class CONSTANTS:
       'AMS.MC': 'Amadeus IT Group',
       'MTS.MC': 'ArcelorMittal',
       'BBVA.MC': 'BBVA',
-
       'SAB.MC': 'Sabadell',
       'SAN.MC': 'Banco Santander',
       'BKT.MC': 'Bankinter',
@@ -133,7 +140,10 @@ class CONSTANTS:
       'ALLE': 'Allegion',
       'LNT': 'Alliant',  # 'Alliant Energy Corp',
       'ALL': 'Allstate',  # 'Allstate Corp',
-      'GOOGL': 'Google',  # 'Alphabet Inc. (Class A)',
+      'GOOGL': 'Google'  # 'Alphabet Inc. (Class A)',
+    }
+
+    SP500_STOCK_LIBRARY_2 = {
       'GOOG': 'Google',  # 'Alphabet Inc. (Class C)',
       'MO': 'Altria',  # 'Altria Group Inc',
       'AMZN': 'Amazon',  # 'Amazon.com Inc.',
@@ -154,7 +164,11 @@ class CONSTANTS:
       'ANSS': 'ANSYS',
       'ANTM': 'Anthem',
       'AON': 'Aon',  # 'Aon plc',
-      'AOS': 'A.O. Smith',  # 'A.O. Smith Corp',
+      'AOS': 'A.O. Smith'  # 'A.O. Smith Corp',
+
+    }
+
+    SP500_STOCK_LIBRARY_3 = {
       'APA': 'Apache Corporation',
       'AIV': 'Apartment Investment & Management',
       'AAPL': 'Apple Inc.',
@@ -184,6 +198,9 @@ class CONSTANTS:
       'BLK': 'BlackRock',
       'BA': 'Boeing',  # 'Boeing Company',
       'BKNG': 'Booking Holdings',  # 'Booking Holdings Inc',
+    }
+
+    SP500_STOCK_LIBRARY_4 = {
       'BWA': 'BorgWarner',
       'BXP': 'Boston Properties',
       'BSX': 'Boston Scientific',
@@ -210,15 +227,15 @@ class CONSTANTS:
       'CTL': 'CenturyLink',  # 'CenturyLink Inc',
       'CERN': 'Cerner',
       'CF': 'CF Industries Holdings',  # 'CF Industries Holdings Inc',
-      'SCHW': 'Charles Schwab Corporation'
-    }
-
-    SP500_STOCK_LIBRARY_2 = {
+      'SCHW': 'Charles Schwab Corporation',
       'CHTR': 'Charter Communications',
       'CVX': 'Chevron',  # 'Chevron Corp.',
       'CMG': 'Chipotle Mexican Grill',
       'CB': 'Chubb Limited',
-      'CHD': 'Church & Dwight',
+      'CHD': 'Church & Dwight'
+    }
+
+    SP500_STOCK_LIBRARY_5 = {
       'CI': 'CIGNA',  # 'CIGNA Corp.',
       'CINF': 'Cincinnati Financial',
       'CTAS': 'Cintas Corporation',
@@ -249,7 +266,11 @@ class CONSTANTS:
       'CSX': 'CSX',  # 'CSX Corp.',
       'CMI': 'Cummins',  # 'Cummins Inc.',
       'CVS': 'CVS Health',
-      'DHI': 'D. R. Horton',
+      'DHI': 'D. R. Horton'
+
+    }
+
+    SP500_STOCK_LIBRARY_6 = {
       'DHR': 'Danaher',  # 'Danaher Corp.',
       'DRI': 'Darden Restaurants',
       'DVA': 'DaVita',  # 'DaVita Inc.',
@@ -280,7 +301,10 @@ class CONSTANTS:
       'ETN': 'Eaton Corporation',
       'EBAY': 'eBay',  # 'eBay Inc.',
       'ECL': 'Ecolab',  # 'Ecolab Inc.',
-      'EIX': "Edison Int'l",
+      'EIX': "Edison Int'l"
+    }
+
+    SP500_STOCK_LIBRARY_7 = {
       'EW': 'Edwards Lifesciences',
       'EA': 'Electronic Arts',
       'EMR': 'Emerson Electric',  # 'Emerson Electric Company',
@@ -321,7 +345,10 @@ class CONSTANTS:
       'FOX': 'Fox',  # 'Fox Corporation (Class B)',
       'BEN': 'Franklin Resources',
       'FCX': 'Freeport-McMoRan',  # 'Freeport-McMoRan Inc.',
-      'GPS': 'Gap',  # 'Gap Inc.',
+      'GPS': 'Gap'  # 'Gap Inc.',
+    }
+
+    SP500_STOCK_LIBRARY_8 = {
       'GRMN': 'Garmin',  # 'Garmin Ltd.',
       'IT': 'Gartner',  # 'Gartner Inc',
       'GD': 'General Dynamics',
@@ -362,10 +389,9 @@ class CONSTANTS:
       'INFO': 'IHS Markit',  # 'IHS Markit Ltd.',
       'ITW': 'Illinois Tool Works',
       'ILMN': 'Illumina'  # 'Illumina Inc'
-
     }
 
-    SP500_STOCK_LIBRARY_3 = {
+    SP500_STOCK_LIBRARY_9 = {
       'INCY': 'Incyte',
       'IR': 'Ingersoll Rand',
       'INTC': 'Intel',  # 'Intel Corp.',
@@ -398,6 +424,9 @@ class CONSTANTS:
       'KLAC': 'KLAC',  # 'KLA Corporation',
       'KSS': "Kohl's",  # "Kohl's Corp.",
       'KHC': 'Kraft Heinz',  # 'Kraft Heinz Co',
+    }
+
+    SP500_STOCK_LIBRARY_10 = {
       'KR': 'Kroger',  # 'Kroger Co.',
       'LB': 'L Brands',  # 'L Brands Inc.',
       'LHX': 'L3Harris',  # 'L3Harris Technologies',
@@ -430,7 +459,10 @@ class CONSTANTS:
       'MXIM': 'Maxim Integrated',  # 'Maxim Integrated Products Inc',
       'MCD': "McDonald's",  # "McDonald's Corp.",
       'MCK': 'McKesson',  # 'McKesson Corp.',
-      'MDT': 'Medtronic',  # 'Medtronic plc',
+      'MDT': 'Medtronic'  # 'Medtronic plc',
+    }
+
+    SP500_STOCK_LIBRARY_11 = {
       'MRK': 'Merck & Co.',
       'MET': 'MetLife',  # 'MetLife Inc.',
       'MTD': 'Mettler Toledo',
@@ -468,7 +500,7 @@ class CONSTANTS:
       'NLOK': 'NortonLifeLock'
     }
 
-    SP500_STOCK_LIBRARY_4 = {
+    SP500_STOCK_LIBRARY_12 = {
       'NCLH': 'Norwegian Cruise Line Holdings',
       'NRG': 'NRG Energy',
       'NUE': 'Nucor',  # 'Nucor Corp.',
