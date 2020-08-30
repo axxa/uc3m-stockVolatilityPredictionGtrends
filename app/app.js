@@ -36,7 +36,7 @@ app.get('/volatilitypred/extractTrends/:trendWord/:startDate/:endDate', (req, re
 
   const optionsObject = {
     keyword: keyword,
-    property: 'news',
+    //property: 'news',
     //resolution: 'COUNTRY',
     startTime: startDate,
     endTime: endDate
@@ -47,12 +47,9 @@ app.get('/volatilitypred/extractTrends/:trendWord/:startDate/:endDate', (req, re
     results = JSON.parse(results).default.timelineData;
     results.forEach(function(result) {
       result.time = result.time
-      result.formattedTime = result.formattedTime;
-      result.formattedAxisTime = result.formattedAxisTime;
       result.value = result.value[0];
-      result.formattedValue = result.formattedValue;
-      result.symbol= keyword;
     });
+
     res.status(201).json({
       gtrendsdata : results
     });
