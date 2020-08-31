@@ -103,9 +103,9 @@ def process_data(response_trend_df: pd.DataFrame(), response_finance_df: pd.Data
 
 if __name__ == '__main__':
     # SP500_STOCK_LIBRARY_1, SP500_STOCK_LIBRARY_2, IBEX_STOCK_LIBRARY, DAX30_STOCK_LIBRARY
-    CONSTANTS.LIBRARY = CONSTANTS.IBEX_STOCK_LIBRARY
-    CONSTANTS.RESULTS_PATH = CONSTANTS.ibex_results_path
-
+    CONSTANTS.LIBRARY = CONSTANTS.SP500_STOCK_LIBRARY_9
+    CONSTANTS.RESULTS_PATH = CONSTANTS.sp500_results_path
+    cont = 0
     for key, value in CONSTANTS.LIBRARY.items():
         execute(key, value, CONSTANTS.start_date, CONSTANTS.end_date)
 
