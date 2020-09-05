@@ -38,9 +38,11 @@ def fit_df_series(predecido_df, predictor_df):
       or predictor_df['date'].iloc[0] > predecido_df['date'].iloc[0]:
         predecido_df = predecido_df.iloc[1:]
     if predictor_df.shape[0] > predecido_df.shape[0]:
-        predictor_df = predictor_df.iloc[:-1]
+        tam = predictor_df.shape[0] - predecido_df.shape[0]
+        predictor_df = predictor_df.iloc[:-tam]
     elif predictor_df.shape[0] < predecido_df.shape[0]:
-        predecido_df = predecido_df.iloc[:-1]
+        tam = predecido_df.shape[0] - predictor_df.shape[0]
+        predecido_df = predecido_df.iloc[:-tam]
 
     return predictor_df, predecido_df
 
