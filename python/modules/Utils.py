@@ -4,6 +4,12 @@ import matplotlib.pyplot as plt
 
 from constants.CONSTANTS import CONSTANTS
 
+
+def split_df_by_years(dt, date_column_name):
+    dt['year'] = dt[date_column_name].dt.year
+    return [dt[dt['year'] == y] for y in dt['year'].unique()], dt['year'].unique()
+
+
 def check_date_range_by_days(start: str, end: str):
     start = datetime.strptime(start, "%Y-%m-%d")
     end = datetime.strptime(end, "%Y-%m-%d")
@@ -28,10 +34,10 @@ def get_range_dates_by_chunks(start: str, end: str, window: int):
 
 
 def multiple_dfs(df_list, sheets, writer, spaces):
-  row = 0
-  for dataframe in df_list:
-    dataframe.to_excel(writer, sheet_name=sheets, startrow=row, startcol=0)
-    row = row + len(dataframe.index) + spaces + 1
+    row = 0
+    for dataframe in df_list:
+        dataframe.to_excel(writer, sheet_name=sheets, startrow=row, startcol=0)
+        row = row + len(dataframe.index) + spaces + 1
 
 
 def create_plot_from_df(df, x_arr, y_arr, color_arr, plot_name, path):
