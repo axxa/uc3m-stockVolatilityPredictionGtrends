@@ -5,6 +5,22 @@ import matplotlib.pyplot as plt
 from constants.CONSTANTS import CONSTANTS
 
 
+def extract_confusion_matrix(evaluacion_prediccion_df):
+    evaluacion_prediccion_df = evaluacion_prediccion_df.loc[:1, 'prediccion positiva': 'prediccion negativa']
+    tp = evaluacion_prediccion_df.iloc[0]['prediccion positiva']
+    fp = evaluacion_prediccion_df.iloc[1]['prediccion positiva']
+    fn = evaluacion_prediccion_df.iloc[0]['prediccion negativa']
+    tn = evaluacion_prediccion_df.iloc[1]['prediccion negativa']
+    return tp, fp, fn, tn
+
+
+def extract_fisher(evaluacion_prediccion_df):
+    evaluacion_prediccion_df = evaluacion_prediccion_df.loc[7:7, 'prediccion positiva': 'prediccion negativa']
+    odds_ratio = evaluacion_prediccion_df.iloc[0]['prediccion positiva']
+    pvalue = evaluacion_prediccion_df.iloc[0]['prediccion negativa']
+    return odds_ratio, pvalue
+
+
 def split_df_by_years(dt, date_column_name):
     dt['year'] = dt[date_column_name].dt.year
     return [dt[dt['year'] == y] for y in dt['year'].unique()], dt['year'].unique()
